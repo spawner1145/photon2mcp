@@ -76,7 +76,17 @@ public final class EditorBridge implements ToolBackend {
         var ui = ModularUIClientAccess.of(Minecraft.getInstance().gui.screen());
         if (ui != null) {
             var editors = ui.getElementsByType(FXEditor.class);
-            if (!editors.isEmpty()) return editors.getFirst();
+            for (var editor : editors) {
+                boolean displayed = true;
+                for (var element = (com.lowdragmc.lowdraglib2.gui.ui.UIElement) editor;
+                     element != null; element = element.getParent()) {
+                    if (!element.isDisplayed() || !element.isVisible()) {
+                        displayed = false;
+                        break;
+                    }
+                }
+                if (displayed) return editor;
+            }
         }
         return null;
     }
