@@ -1,0 +1,57 @@
+plugins {
+    id 'java-library'
+    id 'net.neoforged.moddev' version '2.0.141'
+}
+
+version = '0.2.0'
+group = 'dev.photonmcp'
+base { archivesName = 'photon-mcp-neoforge-26.2' }
+java { toolchain.languageVersion = JavaLanguageVersion.of(25) }
+
+repositories { mavenCentral() }
+
+def installedMods = file("${gameDir}/mods")
+def photonJar = file("${installedMods}/photon-neoforge-26.2-26.2.2.3.jar")
+def ldlibJar = file("${installedMods}/ldlib2-neoforge-26.2-26.2.2.41.a.jar")
+def extractCompileLibraries = tasks.register('extractCompileLibraries', Sync) {
+    from(zipTree(ldlibJar)) { include 'META-INF/jarjar/*.jar' }
+    from(zipTree(photonJar)) { include 'META-INF/jarjar/*.jar' }
+    into layout.buildDirectory.dir('compile-libraries')
+}
+
+neoForge {
+    version = '26.2.0.88'
+    mods {
+        photon_mcp { sourceSet sourceSets.main }
+    }
+    runs {
+        client {
+            client()
+            gameDirectory = file('run')
+        }
+    }
+    unitTest {
+        enable()
+        testedMod = mods.photon_mcp
+    }
+}
+
+configurations { embeddedGroovy }
+configurations.implementation.extendsFrom(configurations.embeddedGroovy)
+dependencies {
+    embeddedGroovy 'org.apache.groovy:groovy:4.0.28'
+    implementation files(photonJar, ldlibJar)
+    compileOnly files(fileTree(layout.buildDirectory.dir('compile-libraries')) { include '**/*.jar' }).builtBy(extractCompileLibraries)
+    testImplementation 'org.junit.jupiter:junit-jupiter:5.10.0'
+    testRuntimeOnly 'org.junit.platform:junit-platform-launcher:1.10.0'
+}
+jar { from(configurations.embeddedGroovy) { into 'META-INF/jarjar' } }
+
+tasks.withType(JavaCompile).configureEach { options.encoding = 'UTF-8' }
+test { useJUnitPlatform() }
+
+tasks.register('installMod', Copy) {
+    dependsOn jar
+    from tasks.jar.archiveFile
+    into installedMods
+}

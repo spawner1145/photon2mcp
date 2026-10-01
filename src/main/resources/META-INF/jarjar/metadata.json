@@ -1,0 +1,8 @@
+{
+  "jars": [{
+    "identifier": {"group": "org.apache.groovy", "artifact": "groovy"},
+    "version": {"range": "[4.0.28,4.1)", "artifactVersion": "4.0.28"},
+    "path": "META-INF/jarjar/groovy-4.0.28.jar",
+    "isObfuscated": false
+  }]
+}

@@ -1,0 +1,27 @@
+{
+  "version": "0.2.0",
+  "configurations": [
+    {
+      "type": "java",
+      "request": "launch",
+      "name": "Client",
+      "presentation": {
+        "group": "Mod Development - photon-mcp",
+        "order": 0
+      },
+      "projectName": "photon-mcp",
+      "mainClass": "net.neoforged.devlaunch.Main",
+      "args": [
+        "@D:\\code\\photon mcp\\PhotonMCP\\build\\moddev\\clientRunProgramArgs.txt"
+      ],
+      "vmArgs": [
+        "@D:\\code\\photon mcp\\PhotonMCP\\build\\moddev\\clientRunVmArgs.txt",
+        "-Dfml.modFolders\u003dphoton_mcp%%D:\\code\\photon mcp\\PhotonMCP\\bin\\main"
+      ],
+      "cwd": "${workspaceFolder}\\run",
+      "env": {},
+      "console": "internalConsole",
+      "shortenCommandLine": "none"
+    }
+  ]
+}

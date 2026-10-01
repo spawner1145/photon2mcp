@@ -1,0 +1,8 @@
+{
+  "photon_mcp.menu.status": "Connection status",
+  "photon_mcp.menu.configure": "Host / Port",
+  "photon_mcp.menu.stop": "Stop MCP server",
+  "photon_mcp.menu.start": "Start MCP server",
+  "photon_mcp.menu.copy_url": "Copy MCP URL",
+  "photon_mcp.menu.apply": "Save and restart"
+}

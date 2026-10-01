@@ -1,0 +1,41 @@
+modLoader="javafml"
+loaderVersion="[11,)"
+license="All Rights Reserved"
+
+[[mods]]
+modId="photon_mcp"
+version="0.2.0"
+displayName="Photon MCP"
+authors="Photon MCP contributors"
+description='''Live MCP tools for the in-game Photon effect editor.'''
+
+[[mixins]]
+config="photon_mcp.mixins.json"
+
+[[dependencies.photon_mcp]]
+modId="neoforge"
+type="required"
+versionRange="[26.2.0.88,26.3)"
+ordering="NONE"
+side="CLIENT"
+
+[[dependencies.photon_mcp]]
+modId="minecraft"
+type="required"
+versionRange="[26.2,26.3)"
+ordering="NONE"
+side="CLIENT"
+
+[[dependencies.photon_mcp]]
+modId="photon"
+type="required"
+versionRange="[26.2.2.3,26.2.2.4)"
+ordering="AFTER"
+side="CLIENT"
+
+[[dependencies.photon_mcp]]
+modId="ldlib2"
+type="required"
+versionRange="[26.2.2.41.a,26.2.2.42)"
+ordering="AFTER"
+side="CLIENT"

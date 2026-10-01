@@ -1,0 +1,8 @@
+{
+  "photon_mcp.menu.status": "连接状态",
+  "photon_mcp.menu.configure": "连接配置",
+  "photon_mcp.menu.stop": "停止 MCP 服务",
+  "photon_mcp.menu.start": "启动 MCP 服务",
+  "photon_mcp.menu.copy_url": "复制 MCP 地址",
+  "photon_mcp.menu.apply": "保存并重启"
+}
