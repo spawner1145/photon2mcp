@@ -4,7 +4,4 @@ pluginManagement {
         maven { url = 'https://maven.neoforged.net/releases' }
     }
 }
-rootProject.name = 'photon-mcp'
-if (gradle.startParameter.projectProperties.containsKey('localGameBuild')) {
-    rootProject.buildFileName = 'build-local.gradle'
-}
+rootProject.name = 'photon-mcp-1.21'

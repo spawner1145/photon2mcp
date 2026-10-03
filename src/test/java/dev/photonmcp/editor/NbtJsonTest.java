@@ -21,9 +21,9 @@ class NbtJsonTest {
         var result = NbtJson.merge(base, patch);
         assertInstanceOf(FloatTag.class, result.get("size"));
         assertInstanceOf(IntTag.class, result.get("count"));
-        assertEquals("existing", result.getCompoundOrEmpty("shape").getStringOr("keep", ""));
-        assertFalse(result.getCompoundOrEmpty("shape").getBooleanOr("enable", true));
-        assertEquals(1.0f, base.getFloatOr("size", 0));
+        assertEquals("existing", result.getCompound("shape").getString("keep"));
+        assertFalse(result.getCompound("shape").getBoolean("enable"));
+        assertEquals(1.0f, base.getFloat("size"));
     }
 
     @Test
@@ -36,7 +36,7 @@ class NbtJsonTest {
         base.put("values", values);
         var result = NbtJson.merge(base, JsonParser.parseString("{\"name\":null,\"values\":[3.5]}").getAsJsonObject());
         assertFalse(result.contains("name"));
-        assertEquals(1, result.getListOrEmpty("values").size());
-        assertInstanceOf(FloatTag.class, result.getListOrEmpty("values").getFirst());
+        assertEquals(1, result.getList("values", net.minecraft.nbt.Tag.TAG_FLOAT).size());
+        assertInstanceOf(FloatTag.class, result.getList("values", net.minecraft.nbt.Tag.TAG_FLOAT).get(0));
     }
 }

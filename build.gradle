@@ -5,14 +5,14 @@ plugins {
 
 version = '0.2.0'
 group = 'dev.photonmcp'
-base { archivesName = 'photon-mcp-neoforge-26.2' }
-java { toolchain.languageVersion = JavaLanguageVersion.of(25) }
+base { archivesName = 'photon-mcp-neoforge-1.21.1' }
+java { toolchain.languageVersion = JavaLanguageVersion.of(21) }
 
 repositories { mavenCentral() }
 
 def installedMods = file("${gameDir}/mods")
-def photonJar = file("${installedMods}/photon-neoforge-26.2-26.2.2.3.jar")
-def ldlibJar = file("${installedMods}/ldlib2-neoforge-26.2-26.2.2.41.a.jar")
+def photonJar = file("${installedMods}/photon-neoforge-1.21.1-2.2.7-all.jar")
+def ldlibJar = file("${installedMods}/ldlib2-neoforge-1.21.1-2.2.41-all.jar")
 def extractCompileLibraries = tasks.register('extractCompileLibraries', Sync) {
     from(zipTree(ldlibJar)) { include 'META-INF/jarjar/*.jar' }
     from(zipTree(photonJar)) { include 'META-INF/jarjar/*.jar' }
@@ -20,7 +20,7 @@ def extractCompileLibraries = tasks.register('extractCompileLibraries', Sync) {
 }
 
 neoForge {
-    version = '26.2.0.88'
+    version = '21.1.252'
     mods {
         photon_mcp { sourceSet sourceSets.main }
     }
@@ -30,14 +30,12 @@ neoForge {
             gameDirectory = file('run')
         }
     }
-    unitTest {
-        enable()
-        testedMod = mods.photon_mcp
-    }
 }
 
 configurations { embeddedGroovy }
 configurations.implementation.extendsFrom(configurations.embeddedGroovy)
+sourceSets.test.compileClasspath += sourceSets.main.compileClasspath
+sourceSets.test.runtimeClasspath += sourceSets.main.runtimeClasspath
 dependencies {
     embeddedGroovy 'org.apache.groovy:groovy:4.0.28'
     implementation files(photonJar, ldlibJar)
@@ -48,10 +46,19 @@ dependencies {
 jar { from(configurations.embeddedGroovy) { into 'META-INF/jarjar' } }
 
 tasks.withType(JavaCompile).configureEach { options.encoding = 'UTF-8' }
-test { useJUnitPlatform() }
+test {
+    useJUnitPlatform()
+    classpath += files(fileTree(layout.buildDirectory.dir('compile-libraries')) { include '**/*.jar' })
+}
 
-tasks.register('installMod', Copy) {
+tasks.register('installMod') {
     dependsOn jar
-    from tasks.jar.archiveFile
-    into installedMods
+    inputs.file tasks.jar.archiveFile
+    outputs.file tasks.jar.archiveFileName.map { name -> new File(installedMods, name) }
+    doLast {
+        copy {
+            from tasks.jar.archiveFile
+            into installedMods
+        }
+    }
 }

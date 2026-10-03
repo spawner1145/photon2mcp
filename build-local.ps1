@@ -1,22 +1,19 @@
 param(
-    [string]$JavaHome = 'D:\Java\jdk-25.0.2',
-    [string]$GameDir = 'D:\game\.minecraft\versions\26.2-NeoForge_26.2.0.88',
+    [string]$JavaHome = 'C:\Program Files\Eclipse Adoptium\jdk-21.0.11.10-hotspot',
+    [string]$GameDir = 'D:\game\.minecraft\versions\1.21.1-NeoForge_21.1.252',
     [switch]$Test,
-    [switch]$Install
+    [switch]$Install,
+    [switch]$Offline
 )
 
 $ErrorActionPreference = 'Stop'
 $env:JAVA_HOME = $JavaHome
 $taskNames = @('jar')
 if ($Test) {
-    $tooling = Join-Path $PSScriptRoot 'build\tooling'
-    New-Item -ItemType Directory -Force $tooling | Out-Null
-    $junit = Join-Path $tooling 'junit-platform-console-standalone-1.10.0.jar'
-    if (-not (Test-Path -LiteralPath $junit)) {
-        Invoke-WebRequest 'https://repo.maven.apache.org/maven2/org/junit/platform/junit-platform-console-standalone/1.10.0/junit-platform-console-standalone-1.10.0.jar' -OutFile $junit
-    }
     $taskNames += 'test'
 }
 if ($Install) { $taskNames += 'installMod' }
-& (Join-Path $PSScriptRoot 'gradlew.bat') -p $PSScriptRoot -PlocalGameBuild "-PgameDir=$GameDir" --offline --console=plain @taskNames
+$gradleArguments = @('-p', $PSScriptRoot, "-PgameDir=$GameDir", '--console=plain')
+if ($Offline) { $gradleArguments += '--offline' }
+& (Join-Path $PSScriptRoot 'gradlew.bat') @gradleArguments @taskNames
 if ($LASTEXITCODE -ne 0) { throw "Gradle build failed: $LASTEXITCODE" }

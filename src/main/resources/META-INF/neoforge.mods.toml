@@ -1,5 +1,5 @@
 modLoader="javafml"
-loaderVersion="[11,)"
+loaderVersion="[4,)"
 license="All Rights Reserved"
 
 [[mods]]
@@ -15,27 +15,27 @@ config="photon_mcp.mixins.json"
 [[dependencies.photon_mcp]]
 modId="neoforge"
 type="required"
-versionRange="[26.2.0.88,26.3)"
+versionRange="[21.1.252,21.2)"
 ordering="NONE"
 side="CLIENT"
 
 [[dependencies.photon_mcp]]
 modId="minecraft"
 type="required"
-versionRange="[26.2,26.3)"
+versionRange="[1.21.1,1.21.2)"
 ordering="NONE"
 side="CLIENT"
 
 [[dependencies.photon_mcp]]
 modId="photon"
 type="required"
-versionRange="[26.2.2.3,26.2.2.4)"
+versionRange="[2.2.7,2.2.8)"
 ordering="AFTER"
 side="CLIENT"
 
 [[dependencies.photon_mcp]]
 modId="ldlib2"
 type="required"
-versionRange="[26.2.2.41.a,26.2.2.42)"
+versionRange="[2.2.41,2.2.42)"
 ordering="AFTER"
 side="CLIENT"

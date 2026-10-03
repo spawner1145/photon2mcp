@@ -49,7 +49,7 @@ public final class ResourceTools {
     public static JsonObject write(JsonObject arguments) throws Exception {
         var resource = resource(arguments.get("category").getAsString());
         Tag source = arguments.has("source") ? readData(resource, arguments.get("source").getAsString()) : new CompoundTag();
-        if (arguments.has("snbt")) source = TagParser.parseCompoundFully(arguments.get("snbt").getAsString());
+        if (arguments.has("snbt")) source = TagParser.parseTag(arguments.get("snbt").getAsString());
         if (!(source instanceof CompoundTag compound)) throw new IllegalArgumentException("Resource payload is not a compound; supply a compound SNBT payload");
         var data = arguments.has("patch") ? NbtJson.merge(compound, arguments.getAsJsonObject("patch")) : compound.copy();
         var decoded = resource.deserializeResource(data, Platform.getFrozenRegistry());
@@ -83,7 +83,7 @@ public final class ResourceTools {
             return data;
         }
         var wrapper = NbtIo.read(resolve(reference));
-        if (wrapper == null || !wrapper.getStringOr("type", "").equals(resource.getName()) || wrapper.get("data") == null) {
+        if (wrapper == null || !wrapper.getString("type").equals(resource.getName()) || wrapper.get("data") == null) {
             throw new IllegalArgumentException("Resource file type does not match " + resource.getName());
         }
         return wrapper.get("data").copy();

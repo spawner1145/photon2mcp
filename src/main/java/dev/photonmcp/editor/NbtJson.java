@@ -44,7 +44,7 @@ public final class NbtJson {
         if (value.isJsonArray() && previous instanceof ListTag list) {
             var next = new ListTag();
             for (var element : value.getAsJsonArray()) {
-                next.add(convert(element, list.isEmpty() ? null : list.getFirst()));
+                next.add(convert(element, list.isEmpty() ? null : list.get(0)));
             }
             return next;
         }
@@ -56,11 +56,11 @@ public final class NbtJson {
         info.addProperty("nbtType", tag.getType().getPrettyName());
         if (tag instanceof CompoundTag compound) {
             var fields = new JsonObject();
-            for (var key : compound.keySet()) fields.add(key, describe(compound.get(key)));
+            for (var key : compound.getAllKeys()) fields.add(key, describe(compound.get(key)));
             info.add("fields", fields);
         } else if (tag instanceof ListTag list) {
             info.addProperty("length", list.size());
-            if (!list.isEmpty()) info.add("element", describe(list.getFirst()));
+            if (!list.isEmpty()) info.add("element", describe(list.get(0)));
         } else {
             info.add("value", json(tag));
         }

@@ -58,50 +58,49 @@ public final class ScreenshotService {
         var requestedCrop = crop;
         var scale = minecraft.getWindow().getGuiScale();
         var directory = minecraft.gameDirectory.toPath();
-        Screenshot.takeScreenshot(minecraft.gameRenderer.mainRenderTarget(), image -> {
-            Thread.startVirtualThread(() -> {
-                try (image) {
-                    if (capture.result.isDone()) return;
-                    var buffered = new BufferedImage(image.getWidth(), image.getHeight(), BufferedImage.TYPE_INT_ARGB);
-                    buffered.setRGB(0, 0, image.getWidth(), image.getHeight(), image.getPixels(), 0, image.getWidth());
-                    if (requestedCrop != null) {
-                        var left = Math.max(0, (int) Math.floor(requestedCrop.left * scale));
-                        var top = Math.max(0, (int) Math.floor(requestedCrop.top * scale));
-                        var right = Math.min(buffered.getWidth(), (int) Math.ceil(requestedCrop.right * scale));
-                        var bottom = Math.min(buffered.getHeight(), (int) Math.ceil(requestedCrop.bottom * scale));
-                        if (right <= left || bottom <= top) throw new IllegalStateException("Capture region is not visible");
-                        buffered = buffered.getSubimage(left, top, right - left, bottom - top);
-                    }
-                    var maxSize = capture.arguments.has("max_size") ? capture.arguments.get("max_size").getAsInt() : 1280;
-                    if (maxSize < 64 || maxSize > 4096) throw new IllegalArgumentException("max_size must be 64..4096");
-                    var largest = Math.max(buffered.getWidth(), buffered.getHeight());
-                    if (largest > maxSize) {
-                        var width = Math.max(1, buffered.getWidth() * maxSize / largest);
-                        var height = Math.max(1, buffered.getHeight() * maxSize / largest);
-                        var resized = new BufferedImage(width, height, BufferedImage.TYPE_INT_ARGB);
-                        var graphics = resized.createGraphics();
-                        try {
-                            graphics.setRenderingHint(RenderingHints.KEY_INTERPOLATION, RenderingHints.VALUE_INTERPOLATION_BICUBIC);
-                            graphics.drawImage(buffered, 0, 0, width, height, null);
-                        } finally {
-                            graphics.dispose();
-                        }
-                        buffered = resized;
-                    }
-                    var output = new ByteArrayOutputStream();
-                    ImageIO.write(buffered, "png", output);
-                    var bytes = output.toByteArray();
-                    if (capture.arguments.has("path")) {
-                        var file = Path.of(capture.arguments.get("path").getAsString());
-                        file = (file.isAbsolute() ? file : directory.resolve(file)).toAbsolutePath().normalize();
-                        Files.createDirectories(file.getParent());
-                        Files.write(file, bytes);
-                    }
-                    capture.result.complete(ToolResults.image(Base64.getEncoder().encodeToString(bytes), buffered.getWidth(), buffered.getHeight()));
-                } catch (Exception exception) {
-                    capture.result.complete(ToolResults.failure(exception.toString()));
+        var image = Screenshot.takeScreenshot(minecraft.getMainRenderTarget());
+        Thread.startVirtualThread(() -> {
+            try (image) {
+                if (capture.result.isDone()) return;
+                var buffered = new BufferedImage(image.getWidth(), image.getHeight(), BufferedImage.TYPE_INT_ARGB);
+                buffered.setRGB(0, 0, image.getWidth(), image.getHeight(), image.makePixelArray(), 0, image.getWidth());
+                if (requestedCrop != null) {
+                    var left = Math.max(0, (int) Math.floor(requestedCrop.left * scale));
+                    var top = Math.max(0, (int) Math.floor(requestedCrop.top * scale));
+                    var right = Math.min(buffered.getWidth(), (int) Math.ceil(requestedCrop.right * scale));
+                    var bottom = Math.min(buffered.getHeight(), (int) Math.ceil(requestedCrop.bottom * scale));
+                    if (right <= left || bottom <= top) throw new IllegalStateException("Capture region is not visible");
+                    buffered = buffered.getSubimage(left, top, right - left, bottom - top);
                 }
-            });
+                var maxSize = capture.arguments.has("max_size") ? capture.arguments.get("max_size").getAsInt() : 1280;
+                if (maxSize < 64 || maxSize > 4096) throw new IllegalArgumentException("max_size must be 64..4096");
+                var largest = Math.max(buffered.getWidth(), buffered.getHeight());
+                if (largest > maxSize) {
+                    var width = Math.max(1, buffered.getWidth() * maxSize / largest);
+                    var height = Math.max(1, buffered.getHeight() * maxSize / largest);
+                    var resized = new BufferedImage(width, height, BufferedImage.TYPE_INT_ARGB);
+                    var graphics = resized.createGraphics();
+                    try {
+                        graphics.setRenderingHint(RenderingHints.KEY_INTERPOLATION, RenderingHints.VALUE_INTERPOLATION_BICUBIC);
+                        graphics.drawImage(buffered, 0, 0, width, height, null);
+                    } finally {
+                        graphics.dispose();
+                    }
+                    buffered = resized;
+                }
+                var output = new ByteArrayOutputStream();
+                ImageIO.write(buffered, "png", output);
+                var bytes = output.toByteArray();
+                if (capture.arguments.has("path")) {
+                    var file = Path.of(capture.arguments.get("path").getAsString());
+                    file = (file.isAbsolute() ? file : directory.resolve(file)).toAbsolutePath().normalize();
+                    Files.createDirectories(file.getParent());
+                    Files.write(file, bytes);
+                }
+                capture.result.complete(ToolResults.image(Base64.getEncoder().encodeToString(bytes), buffered.getWidth(), buffered.getHeight()));
+            } catch (Exception exception) {
+                capture.result.complete(ToolResults.failure(exception.toString()));
+            }
         });
     }
 

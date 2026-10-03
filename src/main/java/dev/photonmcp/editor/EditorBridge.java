@@ -8,7 +8,6 @@ import com.lowdragmc.lowdraglib2.configurator.EditAction;
 import com.lowdragmc.lowdraglib2.editor.ui.EditorWindow;
 import com.lowdragmc.lowdraglib2.gui.holder.ModularUIScreen;
 import com.lowdragmc.lowdraglib2.gui.ui.ModularUI;
-import com.lowdragmc.lowdraglib2.gui.ui.ModularUIClientAccess;
 import com.lowdragmc.lowdraglib2.gui.ui.UI;
 import com.lowdragmc.lowdraglib2.utils.PersistedParser;
 import com.lowdragmc.photon.PhotonRegistries;
@@ -73,7 +72,7 @@ public final class EditorBridge implements ToolBackend {
     }
 
     public static FXEditor activeEditor() {
-        var ui = ModularUIClientAccess.of(Minecraft.getInstance().gui.screen());
+        var ui = ModularUI.of(Minecraft.getInstance().screen);
         if (ui != null) {
             var editors = ui.getElementsByType(FXEditor.class);
             for (var editor : editors) {
@@ -125,7 +124,7 @@ public final class EditorBridge implements ToolBackend {
                 if (Minecraft.getInstance().level == null) throw new IllegalStateException("Join a single-player world before opening Photon editor.");
                 var ui = new ModularUI(UI.of(EditorWindow.open(FXEditor.WINDOW_ID, FXEditor::new).setId("fx_editor")))
                         .shouldCloseOnEsc(false).shouldCloseOnKeyInventory(false);
-                Minecraft.getInstance().setScreenAndShow(new ModularUIScreen(ui, Component.literal("Photon")));
+                Minecraft.getInstance().setScreen(new ModularUIScreen(ui, Component.literal("Photon")));
             }
             return state(requireEditor());
         }
@@ -258,7 +257,7 @@ public final class EditorBridge implements ToolBackend {
         result.addProperty("id", object.id().toString());
         result.addProperty("name", object.getName());
         result.addProperty("type", object.name());
-        result.add("dataSchema", NbtJson.describe(wrapper.getCompoundOrEmpty("data")));
+        result.add("dataSchema", NbtJson.describe(wrapper.getCompound("data")));
         result.add("transform", transform(object));
         return result;
     }
@@ -369,7 +368,7 @@ public final class EditorBridge implements ToolBackend {
             var existing = pool.get(candidate.id());
             if (existing != null && existing.getFXObjectType() == candidate.getFXObjectType()) {
                 var wrapper = candidate.serializeWrapper();
-                PersistedParser.deserializeNBT(wrapper.getCompoundOrEmpty("data"), existing, Platform.getFrozenRegistry());
+                PersistedParser.deserializeNBT(wrapper.getCompound("data"), existing, Platform.getFrozenRegistry());
                 existing.transform().localPosition(new Vector3f(candidate.transform().localPosition()));
                 existing.transform().localRotation(new Quaternionf(candidate.transform().localRotation()));
                 existing.transform().localScale(new Vector3f(candidate.transform().localScale()));
@@ -495,9 +494,9 @@ public final class EditorBridge implements ToolBackend {
     private static IFXObject patched(IFXObject original, JsonObject arguments, boolean preserveTransform) throws Exception {
         var wrapper = original.serializeWrapper();
         if (wrapper == null) throw new IllegalStateException("Cannot serialize object");
-        var data = patch(wrapper.getCompoundOrEmpty("data"), arguments);
-        if (preserveTransform && wrapper.getCompoundOrEmpty("data").contains("transform")) {
-            data.put("transform", wrapper.getCompoundOrEmpty("data").get("transform").copy());
+        var data = patch(wrapper.getCompound("data"), arguments);
+        if (preserveTransform && wrapper.getCompound("data").contains("transform")) {
+            data.put("transform", wrapper.getCompound("data").get("transform").copy());
         }
         wrapper.put("data", data);
         var changed = IFXObject.CODEC.parse(NbtOps.INSTANCE, wrapper).getOrThrow();
@@ -510,13 +509,13 @@ public final class EditorBridge implements ToolBackend {
 
     private static CompoundTag patch(CompoundTag base, JsonObject arguments) throws Exception {
         var merged = arguments.has("patch") ? NbtJson.merge(base, arguments.getAsJsonObject("patch")) : base.copy();
-        if (arguments.has("snbt_patch")) merged.merge(TagParser.parseCompoundFully(string(arguments, "snbt_patch")));
+        if (arguments.has("snbt_patch")) merged.merge(TagParser.parseTag(string(arguments, "snbt_patch")));
         return merged;
     }
 
     private static void validateTracks(CompoundTag timeline) {
-        for (var tag : timeline.getListOrEmpty("tracks")) {
-            if (!(tag instanceof CompoundTag track) || PhotonRegistries.TIMELINE_TRACKS.get(track.getStringOr("type", "")) == null) {
+        for (var tag : timeline.getList("tracks", net.minecraft.nbt.Tag.TAG_COMPOUND)) {
+            if (!(tag instanceof CompoundTag track) || PhotonRegistries.TIMELINE_TRACKS.get(track.getString("type")) == null) {
                 throw new IllegalArgumentException("Unknown timeline track type");
             }
         }
@@ -733,10 +732,10 @@ public final class EditorBridge implements ToolBackend {
         var loaded = javax.imageio.ImageIO.read(source.toFile());
         if (loaded == null) throw new IllegalArgumentException("Cannot read texture image");
         javax.imageio.ImageIO.write(loaded, "png", target.toFile());
-        var identifier = net.minecraft.resources.Identifier.fromNamespaceAndPath("photon", "textures/" + name + ".png");
+        var identifier = net.minecraft.resources.ResourceLocation.fromNamespaceAndPath("photon", "textures/" + name + ".png");
         try (var input = Files.newInputStream(target)) {
             var nativeImage = com.mojang.blaze3d.platform.NativeImage.read(input);
-            var texture = new net.minecraft.client.renderer.texture.DynamicTexture(() -> "Photon MCP: " + name, nativeImage);
+            var texture = new net.minecraft.client.renderer.texture.DynamicTexture(nativeImage);
             Minecraft.getInstance().getTextureManager().register(identifier, texture);
         }
         var result = new JsonObject();
@@ -872,7 +871,7 @@ public final class EditorBridge implements ToolBackend {
                 var embedded = new JsonArray();
                 try (var archive = java.nio.file.FileSystems.newFileSystem(file.toPath(), Map.of())) {
                     for (var requested : arguments.getAsJsonArray("include_assets")) {
-                        var id = net.minecraft.resources.Identifier.parse(requested.getAsString());
+                        var id = net.minecraft.resources.ResourceLocation.parse(requested.getAsString());
                         var resource = Minecraft.getInstance().getResourceManager().getResource(id)
                                 .orElseThrow(() -> new IllegalArgumentException("Asset not found: " + id));
                         var destination = archive.getPath("/assets/" + id.getNamespace() + "/" + id.getPath());
@@ -889,7 +888,7 @@ public final class EditorBridge implements ToolBackend {
                 result.add("embeddedAssets", embedded);
             }
         } else if (action.equals("remove")) {
-            com.lowdragmc.photon.client.fx.fxpack.FXPacks.removeFx(file, net.minecraft.resources.Identifier.parse(string(arguments, "fx_id")));
+            com.lowdragmc.photon.client.fx.fxpack.FXPacks.removeFx(file, net.minecraft.resources.ResourceLocation.parse(string(arguments, "fx_id")));
         } else if (!action.equals("list")) throw new IllegalArgumentException("Unknown fxpack action");
         var effects = new JsonArray();
         com.lowdragmc.photon.client.fx.fxpack.FXPacks.listFx(file).forEach(id -> effects.add(id.toString()));
@@ -913,7 +912,7 @@ public final class EditorBridge implements ToolBackend {
             return result;
         }
         if (!string(arguments, "action").equals("invoke")) throw new IllegalArgumentException("Unknown editor action");
-        var action = editor.keymap.getAction(net.minecraft.resources.Identifier.parse(string(arguments, "id")))
+        var action = editor.keymap.getAction(net.minecraft.resources.ResourceLocation.parse(string(arguments, "id")))
                 .orElseThrow(() -> new IllegalArgumentException("Unknown native action"));
         com.lowdragmc.lowdraglib2.gui.ui.UIElement focused = arguments.has("focus") ? switch (string(arguments, "focus")) {
             case "hierarchy" -> editor.hierarchyView;

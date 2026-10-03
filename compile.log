@@ -1,0 +1,307 @@
+To honour the JVM settings for this build a single-use Daemon process will be forked. For more on this, please refer to https://docs.gradle.org/9.1.0/userguide/gradle_daemon.html#sec:disabling_the_daemon in the Gradle documentation.
+Daemon will be stopped at the end of the build 
+
+> Task :createMinecraftArtifacts
+Performing periodic cache maintenance on C:\Users\HP\.gradle\caches\neoformruntime
+Cleaning intermediate results cache in C:\Users\HP\.gradle\caches\neoformruntime\intermediate_results
+ Maximum age: 744h
+ Maximum cache size: 10 GiB
+ 42 files found
+ 230 MiB overall size
+ 0 expired keys found
+ Deleted 21 outdated lock files
+Loaded 145 artifacts from D:\code\photon mcp\PhotonMCP-1.21\build\tmp\createMinecraftArtifacts\nfrt_artifact_manifest.properties
+*** Started working on downloadJson
+  DL    https://launchermeta.mojang.com/mc/game/version_manifest_v2.json
+  DL    https://piston-meta.mojang.com/v1/packages/22a1966494dfa4eeb5ee778c8e6ed5b774839582/1.21.1.json
+ DONE  Completed downloadJson in 0.65s
+*** Started working on downloadClientMappings
+*** Started working on downloadServer
+*** Started working on downloadClient
+  DL    https://piston-data.mojang.com/v1/objects/30c73b1c5da787909b2f73340419fdf13b9def88/client.jar
+  DL    https://piston-data.mojang.com/v1/objects/2244b6f072256667bcd9a73df124d6c58de77992/client.txt
+  DL    https://piston-data.mojang.com/v1/objects/59353fb40c36d304f2035d51e7d6e6baa98dc05c/server.jar
+ DONE  Completed downloadClient in 1.83s
+*** Started working on stripClient
+ DONE  Completed downloadClientMappings in 1.91s
+*** Started working on mergeMappings
+ RUN   Running external tool net.neoforged.installertools:installertools:2.1.2:fatjar
+ DONE  Completed downloadServer in 3.10s
+*** Started working on extractServer
+ RUN   Running external tool net.neoforged.installertools:installertools:2.1.2:fatjar
+ DONE  Completed mergeMappings in 1.65s
+ DONE  Completed extractServer in 0.42s
+*** Started working on stripServer
+ DONE  Completed stripClient in 2.32s
+ DONE  Completed stripServer in 1.11s
+*** Started working on merge
+ RUN   Running external tool net.neoforged:mergetool:2.0.3:fatjar
+ DONE  Completed merge in 2.56s
+*** Started working on rename
+ RUN   Running external tool net.neoforged:AutoRenamingTool:2.0.3:all
+ DONE  Completed rename in 4.31s
+*** Started working on decompile
+ RUN   Running external tool org.vineflower:vineflower:1.10.1
+ DONE  Completed decompile in 19.63s
+*** Started working on inject
+ DONE  Completed inject in 1.55s
+*** Started working on patch
+ RUN   Running external tool io.codechicken:DiffPatch:2.0.0.36:all
+ DONE  Completed patch in 4.75s
+*** Started working on applyNeoforgePatches
+ RUN   Running external tool io.codechicken:DiffPatch:2.0.0.36:all
+ DONE  Completed applyNeoforgePatches in 2.42s
+*** Started working on transformSources
+ RUN   Running external tool net.neoforged.jst:jst-cli-bundle:2.0.6
+ DONE  Completed transformSources in 5.64s
+*** Started working on recompile
+ 110 items on the compile classpath
+ 0 items on the sourcepath
+*** Started working on sourcesWithNeoForge
+ Compiling 5364 source files
+ DONE  Completed sourcesWithNeoForge in 2.86s
+Copied 0 resource files
+ DONE  Completed recompile in 24.13s
+*** Started working on compiledWithNeoForge
+ DONE  Completed compiledWithNeoForge in 3.98s
+*** Started working on sourcesAndCompiledWithNeoForge
+ DONE  Completed sourcesAndCompiledWithNeoForge in 2.03s
+Total runtime: 78.09s
+
+
+> Task :extractCompileLibraries
+
+> Task :compileJava
+D:\code\photon mcp\PhotonMCP-1.21\src\main\java\dev\photonmcp\editor\EditorBridge.java:11: 错误: 找不到符号
+import com.lowdragmc.lowdraglib2.gui.ui.ModularUIClientAccess;
+                                       ^
+  符号:   类 ModularUIClientAccess
+  位置: 程序包 com.lowdragmc.lowdraglib2.gui.ui
+D:\code\photon mcp\PhotonMCP-1.21\src\main\java\dev\photonmcp\editor\EditorBridge.java:76: 错误: 找不到符号
+        var ui = ModularUIClientAccess.of(Minecraft.getInstance().gui.screen());
+                 ^
+  符号:   变量 ModularUIClientAccess
+  位置: 类 EditorBridge
+D:\code\photon mcp\PhotonMCP-1.21\src\main\java\dev\photonmcp\editor\EditorBridge.java:76: 错误: 找不到符号
+        var ui = ModularUIClientAccess.of(Minecraft.getInstance().gui.screen());
+                                                                     ^
+  符号:   方法 screen()
+  位置: 类型为Gui的变量 gui
+D:\code\photon mcp\PhotonMCP-1.21\src\main\java\dev\photonmcp\editor\EditorBridge.java:128: 错误: 找不到符号
+                Minecraft.getInstance().setScreenAndShow(new ModularUIScreen(ui, Component.literal("Photon")));
+                                       ^
+  符号:   方法 setScreenAndShow(ModularUIScreen)
+  位置: 类 Minecraft
+D:\code\photon mcp\PhotonMCP-1.21\src\main\java\dev\photonmcp\editor\EditorBridge.java:261: 错误: 找不到符号
+        result.add("dataSchema", NbtJson.describe(wrapper.getCompoundOrEmpty("data")));
+                                                         ^
+  符号:   方法 getCompoundOrEmpty(String)
+  位置: 类型为CompoundTag的变量 wrapper
+D:\code\photon mcp\PhotonMCP-1.21\src\main\java\dev\photonmcp\editor\EditorBridge.java:372: 错误: 找不到符号
+                PersistedParser.deserializeNBT(wrapper.getCompoundOrEmpty("data"), existing, Platform.getFrozenRegistry());
+                                                      ^
+  符号:   方法 getCompoundOrEmpty(String)
+  位置: 类型为CompoundTag的变量 wrapper
+D:\code\photon mcp\PhotonMCP-1.21\src\main\java\dev\photonmcp\editor\EditorBridge.java:498: 错误: 找不到符号
+        var data = patch(wrapper.getCompoundOrEmpty("data"), arguments);
+                                ^
+  符号:   方法 getCompoundOrEmpty(String)
+  位置: 类型为CompoundTag的变量 wrapper
+D:\code\photon mcp\PhotonMCP-1.21\src\main\java\dev\photonmcp\editor\EditorBridge.java:499: 错误: 找不到符号
+        if (preserveTransform && wrapper.getCompoundOrEmpty("data").contains("transform")) {
+                                        ^
+  符号:   方法 getCompoundOrEmpty(String)
+  位置: 类型为CompoundTag的变量 wrapper
+D:\code\photon mcp\PhotonMCP-1.21\src\main\java\dev\photonmcp\editor\EditorBridge.java:500: 错误: 找不到符号
+            data.put("transform", wrapper.getCompoundOrEmpty("data").get("transform").copy());
+                                         ^
+  符号:   方法 getCompoundOrEmpty(String)
+  位置: 类型为CompoundTag的变量 wrapper
+D:\code\photon mcp\PhotonMCP-1.21\src\main\java\dev\photonmcp\editor\EditorBridge.java:513: 错误: 找不到符号
+        if (arguments.has("snbt_patch")) merged.merge(TagParser.parseCompoundFully(string(arguments, "snbt_patch")));
+                                                               ^
+  符号:   方法 parseCompoundFully(String)
+  位置: 类 TagParser
+D:\code\photon mcp\PhotonMCP-1.21\src\main\java\dev\photonmcp\editor\EditorBridge.java:518: 错误: 找不到符号
+        for (var tag : timeline.getListOrEmpty("tracks")) {
+                               ^
+  符号:   方法 getListOrEmpty(String)
+  位置: 类型为CompoundTag的变量 timeline
+D:\code\photon mcp\PhotonMCP-1.21\src\main\java\dev\photonmcp\editor\EditorBridge.java:519: 错误: 找不到符号
+            if (!(tag instanceof CompoundTag track) || PhotonRegistries.TIMELINE_TRACKS.get(track.getStringOr("type", "")) == null) {
+                                                                                                 ^
+  符号:   方法 getStringOr(String,String)
+  位置: 类型为CompoundTag的变量 track
+D:\code\photon mcp\PhotonMCP-1.21\src\main\java\dev\photonmcp\editor\EditorBridge.java:736: 错误: 找不到符号
+        var identifier = net.minecraft.resources.Identifier.fromNamespaceAndPath("photon", "textures/" + name + ".png");
+                                                ^
+  符号:   类 Identifier
+  位置: 程序包 net.minecraft.resources
+D:\code\photon mcp\PhotonMCP-1.21\src\main\java\dev\photonmcp\editor\EditorBridge.java:739: 错误: 对于DynamicTexture(()->"Photo[...] name,NativeImage), 找不到合适的构造器
+            var texture = new net.minecraft.client.renderer.texture.DynamicTexture(() -> "Photon MCP: " + name, nativeImage);
+                          ^
+    构造器 DynamicTexture.DynamicTexture(NativeImage)不适用
+      (实际参数列表和形式参数列表长度不同)
+    构造器 DynamicTexture.DynamicTexture(int,int,boolean)不适用
+      (实际参数列表和形式参数列表长度不同)
+D:\code\photon mcp\PhotonMCP-1.21\src\main\java\dev\photonmcp\editor\EditorBridge.java:875: 错误: 找不到符号
+                        var id = net.minecraft.resources.Identifier.parse(requested.getAsString());
+                                                        ^
+  符号:   类 Identifier
+  位置: 程序包 net.minecraft.resources
+D:\code\photon mcp\PhotonMCP-1.21\src\main\java\dev\photonmcp\editor\EditorBridge.java:892: 错误: 找不到符号
+            com.lowdragmc.photon.client.fx.fxpack.FXPacks.removeFx(file, net.minecraft.resources.Identifier.parse(string(arguments, "fx_id")));
+                                                                                                ^
+  符号:   类 Identifier
+  位置: 程序包 net.minecraft.resources
+D:\code\photon mcp\PhotonMCP-1.21\src\main\java\dev\photonmcp\editor\EditorBridge.java:916: 错误: 找不到符号
+        var action = editor.keymap.getAction(net.minecraft.resources.Identifier.parse(string(arguments, "id")))
+                                                                    ^
+  符号:   类 Identifier
+  位置: 程序包 net.minecraft.resources
+D:\code\photon mcp\PhotonMCP-1.21\src\main\java\dev\photonmcp\editor\NbtJson.java:59: 错误: 找不到符号
+            for (var key : compound.getAllKeys()) fields.add(key, describe(compound.get(key)));
+                                       ^
+  符号:   方法 keySet()
+  位置: 类型为CompoundTag的变量 compound
+D:\code\photon mcp\PhotonMCP-1.21\src\main\java\dev\photonmcp\editor\ResourceTools.java:52: 错误: 找不到符号
+        if (arguments.has("snbt")) source = TagParser.parseTag(arguments.get("snbt").getAsString());
+                                                     ^
+  符号:   方法 parseCompoundFully(String)
+  位置: 类 TagParser
+D:\code\photon mcp\PhotonMCP-1.21\src\main\java\dev\photonmcp\editor\ResourceTools.java:86: 错误: 找不到符号
+        if (wrapper == null || !wrapper.getString("type").equals(resource.getName()) || wrapper.get("data") == null) {
+                                                 ^
+  符号:   方法 getStringOr(String,String)
+  位置: 类型为CompoundTag的变量 wrapper
+D:\code\photon mcp\PhotonMCP-1.21\src\main\java\dev\photonmcp\editor\ScreenshotService.java:61: 错误: 找不到符号
+        Screenshot.takeScreenshot(minecraft.gameRenderer.mainRenderTarget(), image -> {
+                                                        ^
+  符号:   方法 mainRenderTarget()
+  位置: 类型为GameRenderer的变量 gameRenderer
+21 个错误
+
+> Task :compileJava FAILED
+
+[Incubating] Problems report is available at: file:///D:/code/photon%20mcp/PhotonMCP-1.21/build/reports/problems/problems-report.html
+
+FAILURE: Build failed with an exception.
+
+* What went wrong:
+Execution failed for task ':compileJava'.
+> Compilation failed; see the compiler output below.
+  D:\code\photon mcp\PhotonMCP-1.21\src\main\java\dev\photonmcp\editor\EditorBridge.java:739: 错误: 对于DynamicTexture(()->"Photo[...] name,NativeImage), 找不到合适的构造器
+              var texture = new net.minecraft.client.renderer.texture.DynamicTexture(() -> "Photon MCP: " + name, nativeImage);
+                            ^
+      构造器 DynamicTexture.DynamicTexture(NativeImage)不适用
+        (实际参数列表和形式参数列表长度不同)
+      构造器 DynamicTexture.DynamicTexture(int,int,boolean)不适用
+        (实际参数列表和形式参数列表长度不同)
+  D:\code\photon mcp\PhotonMCP-1.21\src\main\java\dev\photonmcp\editor\EditorBridge.java:11: 错误: 找不到符号
+  import com.lowdragmc.lowdraglib2.gui.ui.ModularUIClientAccess;
+                                         ^
+    符号:   类 ModularUIClientAccess
+    位置: 程序包 com.lowdragmc.lowdraglib2.gui.ui
+  D:\code\photon mcp\PhotonMCP-1.21\src\main\java\dev\photonmcp\editor\EditorBridge.java:76: 错误: 找不到符号
+          var ui = ModularUIClientAccess.of(Minecraft.getInstance().gui.screen());
+                   ^
+    符号:   变量 ModularUIClientAccess
+    位置: 类 EditorBridge
+  D:\code\photon mcp\PhotonMCP-1.21\src\main\java\dev\photonmcp\editor\EditorBridge.java:736: 错误: 找不到符号
+          var identifier = net.minecraft.resources.Identifier.fromNamespaceAndPath("photon", "textures/" + name + ".png");
+                                                  ^
+    符号:   类 Identifier
+    位置: 程序包 net.minecraft.resources
+  D:\code\photon mcp\PhotonMCP-1.21\src\main\java\dev\photonmcp\editor\EditorBridge.java:875: 错误: 找不到符号
+                          var id = net.minecraft.resources.Identifier.parse(requested.getAsString());
+                                                          ^
+    符号:   类 Identifier
+    位置: 程序包 net.minecraft.resources
+  D:\code\photon mcp\PhotonMCP-1.21\src\main\java\dev\photonmcp\editor\EditorBridge.java:892: 错误: 找不到符号
+              com.lowdragmc.photon.client.fx.fxpack.FXPacks.removeFx(file, net.minecraft.resources.Identifier.parse(string(arguments, "fx_id")));
+                                                                                                  ^
+    符号:   类 Identifier
+    位置: 程序包 net.minecraft.resources
+  D:\code\photon mcp\PhotonMCP-1.21\src\main\java\dev\photonmcp\editor\EditorBridge.java:916: 错误: 找不到符号
+          var action = editor.keymap.getAction(net.minecraft.resources.Identifier.parse(string(arguments, "id")))
+                                                                      ^
+    符号:   类 Identifier
+    位置: 程序包 net.minecraft.resources
+  D:\code\photon mcp\PhotonMCP-1.21\src\main\java\dev\photonmcp\editor\EditorBridge.java:76: 错误: 找不到符号
+          var ui = ModularUIClientAccess.of(Minecraft.getInstance().gui.screen());
+                                                                       ^
+    符号:   方法 screen()
+    位置: 类型为Gui的变量 gui
+  D:\code\photon mcp\PhotonMCP-1.21\src\main\java\dev\photonmcp\editor\EditorBridge.java:128: 错误: 找不到符号
+                  Minecraft.getInstance().setScreenAndShow(new ModularUIScreen(ui, Component.literal("Photon")));
+                                         ^
+    符号:   方法 setScreenAndShow(ModularUIScreen)
+    位置: 类 Minecraft
+  D:\code\photon mcp\PhotonMCP-1.21\src\main\java\dev\photonmcp\editor\EditorBridge.java:261: 错误: 找不到符号
+          result.add("dataSchema", NbtJson.describe(wrapper.getCompoundOrEmpty("data")));
+                                                           ^
+    符号:   方法 getCompoundOrEmpty(String)
+    位置: 类型为CompoundTag的变量 wrapper
+  D:\code\photon mcp\PhotonMCP-1.21\src\main\java\dev\photonmcp\editor\EditorBridge.java:372: 错误: 找不到符号
+                  PersistedParser.deserializeNBT(wrapper.getCompoundOrEmpty("data"), existing, Platform.getFrozenRegistry());
+                                                        ^
+    符号:   方法 getCompoundOrEmpty(String)
+    位置: 类型为CompoundTag的变量 wrapper
+  D:\code\photon mcp\PhotonMCP-1.21\src\main\java\dev\photonmcp\editor\EditorBridge.java:498: 错误: 找不到符号
+          var data = patch(wrapper.getCompoundOrEmpty("data"), arguments);
+                                  ^
+    符号:   方法 getCompoundOrEmpty(String)
+    位置: 类型为CompoundTag的变量 wrapper
+  D:\code\photon mcp\PhotonMCP-1.21\src\main\java\dev\photonmcp\editor\EditorBridge.java:499: 错误: 找不到符号
+          if (preserveTransform && wrapper.getCompoundOrEmpty("data").contains("transform")) {
+                                          ^
+    符号:   方法 getCompoundOrEmpty(String)
+    位置: 类型为CompoundTag的变量 wrapper
+  D:\code\photon mcp\PhotonMCP-1.21\src\main\java\dev\photonmcp\editor\EditorBridge.java:500: 错误: 找不到符号
+              data.put("transform", wrapper.getCompoundOrEmpty("data").get("transform").copy());
+                                           ^
+    符号:   方法 getCompoundOrEmpty(String)
+    位置: 类型为CompoundTag的变量 wrapper
+  D:\code\photon mcp\PhotonMCP-1.21\src\main\java\dev\photonmcp\editor\EditorBridge.java:513: 错误: 找不到符号
+          if (arguments.has("snbt_patch")) merged.merge(TagParser.parseCompoundFully(string(arguments, "snbt_patch")));
+                                                                 ^
+    符号:   方法 parseCompoundFully(String)
+    位置: 类 TagParser
+  D:\code\photon mcp\PhotonMCP-1.21\src\main\java\dev\photonmcp\editor\EditorBridge.java:518: 错误: 找不到符号
+          for (var tag : timeline.getListOrEmpty("tracks")) {
+                                 ^
+    符号:   方法 getListOrEmpty(String)
+    位置: 类型为CompoundTag的变量 timeline
+  D:\code\photon mcp\PhotonMCP-1.21\src\main\java\dev\photonmcp\editor\EditorBridge.java:519: 错误: 找不到符号
+              if (!(tag instanceof CompoundTag track) || PhotonRegistries.TIMELINE_TRACKS.get(track.getStringOr("type", "")) == null) {
+                                                                                                   ^
+    符号:   方法 getStringOr(String,String)
+    位置: 类型为CompoundTag的变量 track
+  D:\code\photon mcp\PhotonMCP-1.21\src\main\java\dev\photonmcp\editor\NbtJson.java:59: 错误: 找不到符号
+              for (var key : compound.getAllKeys()) fields.add(key, describe(compound.get(key)));
+                                         ^
+    符号:   方法 keySet()
+    位置: 类型为CompoundTag的变量 compound
+  D:\code\photon mcp\PhotonMCP-1.21\src\main\java\dev\photonmcp\editor\ResourceTools.java:52: 错误: 找不到符号
+          if (arguments.has("snbt")) source = TagParser.parseTag(arguments.get("snbt").getAsString());
+                                                       ^
+    符号:   方法 parseCompoundFully(String)
+    位置: 类 TagParser
+  D:\code\photon mcp\PhotonMCP-1.21\src\main\java\dev\photonmcp\editor\ResourceTools.java:86: 错误: 找不到符号
+          if (wrapper == null || !wrapper.getString("type").equals(resource.getName()) || wrapper.get("data") == null) {
+                                                   ^
+    符号:   方法 getStringOr(String,String)
+    位置: 类型为CompoundTag的变量 wrapper
+  D:\code\photon mcp\PhotonMCP-1.21\src\main\java\dev\photonmcp\editor\ScreenshotService.java:61: 错误: 找不到符号
+          Screenshot.takeScreenshot(minecraft.gameRenderer.mainRenderTarget(), image -> {
+                                                          ^
+    符号:   方法 mainRenderTarget()
+    位置: 类型为GameRenderer的变量 gameRenderer
+  21 个错误
+
+* Try:
+> Check your code and dependencies to fix the compilation error(s)
+> Run with --scan to generate a Build Scan (Powered by Develocity).
+
+BUILD FAILED in 1m 56s
+3 actionable tasks: 3 executed

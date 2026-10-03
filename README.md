@@ -1,4 +1,4 @@
-# Photon MCP 0.2.0 — NeoForge 26.2
+# Photon MCP 0.2.0 — NeoForge 1.21.1
 
 独立的客户端附加模组，让外部 MCP Agent 在游戏内 Photon Editor 中实时创建和修改特效。没有修改 Photon / LDLib2 原始源码，也不需要替换原模组。
 
@@ -6,16 +6,18 @@
 
 ## 支持的环境
 
-- Minecraft **26.2** / NeoForge **26.2.0.88** / Java **25**。
-- Photon **26.2.2.3**。
-- LDLib2 **26.2.2.41.a**。
+- Minecraft **1.21.1** / NeoForge **21.1.252** / Java **21**。
+- Photon **2.2.7**，使用 `photon-neoforge-1.21.1-2.2.7-all.jar`。
+- LDLib2 **2.2.41**，使用 `ldlib2-neoforge-1.21.1-2.2.41-all.jar`。
 - 这版依据工作区源码和游戏中实际安装的 JAR 实现；元数据锁定了 Photon / LDLib2 的兼容区间，升级后需要重新验证 API / Mixin。
+
+本目录从 `PhotonMCP-26.2` 独立复制并迁移，原版本保持不变。目录名 `PhotonMCP-1.21` 对应的实际游戏版本是 **1.21.1**，不包含对 1.21.0 的兼容承诺。迁移内容和验证记录见 `MIGRATION.md`。
 
 ## 安装和游戏内使用
 
-编译好的文件：`build/libs/photon-mcp-neoforge-26.2-0.2.0.jar`。升级时移走旧版 Photon MCP JAR，不能同时安装两个版本。
+编译好的文件：`build/libs/photon-mcp-neoforge-1.21.1-0.2.0.jar`。升级时移走旧版 Photon MCP JAR，不能同时安装两个版本。
 
-安装位置：`D:\game\.minecraft\versions\26.2-NeoForge_26.2.0.88\mods`。保留原来的 Photon 和 LDLib2 JAR。
+安装位置：`D:\game\.minecraft\versions\1.21.1-NeoForge_21.1.252\mods`。保留原来的 Photon 和 LDLib2 JAR。
 
 重启游戏，进入单人世界，用 `/photon_editor` 打开编辑器。顶部会变为：
 
@@ -70,7 +72,7 @@ MCP 菜单提供：连接状态、Host / Port 配置、启动/停止服务、复
   "mcpServers": {
     "photon": {
       "command": "node",
-      "args": ["D:/code/photon mcp/PhotonMCP/bridge/photon-mcp.mjs", "--host", "127.0.0.1", "--port", "8765"]
+      "args": ["D:/code/photon mcp/PhotonMCP-1.21/bridge/photon-mcp.mjs", "--host", "127.0.0.1", "--port", "8765"]
     }
   }
 }
@@ -156,7 +158,9 @@ stdio bridge 不是第二个编辑器服务器，只把 MCP 消息和 PNG image 
 
 已生成的示例项目 `examples/mcp-energy-core.fxproj` 和效果文件 `examples/mcp-energy-core.fx` 也包含在工作区内，可直接在 Photon 中打开。
 
-### 维吉尔风格十字空间门
+### 原 26.2 案例：维吉尔风格十字空间门
+
+本节的动画录制和像素统计来自原 26.2 版本，不是本次 1.21.1 迁移的新验证结果。案例脚本的 `ResourceLocation` 已适配 1.21.1，但本次没有重新执行完整动画视觉回归。
 
 运行 `node examples/create-vergil-gate.mjs`，通过 MCP 代码入口创建门体、裂隙火花、原生动画轨道与标记，并保存到 `examples/vergil-cross-gate-reference/`。会替换当前项目，先保存自己的工作。此前 `examples/vergil-cross-gate/` 的第一版文件和原 Shader 保留，新版使用独立的 `photon_mcp:vergil_gate_reference`。
 
@@ -189,21 +193,21 @@ stdio bridge 不是第二个编辑器服务器，只把 MCP 消息和 PNG image 
 标准 NeoForge ModDevGradle 构建：
 
 ```powershell
-$env:JAVA_HOME = 'D:\Java\jdk-25.0.2'
+$env:JAVA_HOME = 'C:\Program Files\Eclipse Adoptium\jdk-21.0.11.10-hotspot'
 .\gradlew.bat build
 ```
 
 默认从 `gradle.properties` 中的游戏目录获取 Photon / LDLib2 JAR，也可传 `-PgameDir=...`。构建不会把依赖模组打包进本模组。
 
-### 使用已安装游戏依赖离线构建
+### 本机构建与安装脚本
 
-这台电脑的 Java/Gradle 直连 NeoForge Maven 出现 TLS connection reset，因此另外提供了经过验证的本地游戏依赖构建入口。Minecraft 26.2 使用未混淆类名，能直接编译到现有游戏库：
+`build-local.ps1` 使用同一个 ModDevGradle 构建，并从目标实例读取 Photon / LDLib2 依赖。首次构建需要联网下载 NeoForge 开发依赖；缓存准备好后可加 `-Offline`：
 
 ```powershell
 .\build-local.ps1 -Test -Install
 ```
 
-脚本从实例 JSON、已安装 NeoForge universal JAR 和依赖模组的嵌套库获取编译 classpath。Gradle wrapper 首次需要下载 Gradle；测试首次会用 PowerShell 下载 JUnit 独立包，之后可离线。只构建则用 `.\build-local.ps1`。
+只构建用 `.\build-local.ps1`，离线构建、测试并安装用 `.\build-local.ps1 -Offline -Test -Install`。可以用 `-JavaHome` 和 `-GameDir` 指定其他本机路径。1.21.1 不再使用原 26.2 的直接游戏 classpath 构建文件，避免混淆游戏 JAR 与开发映射不匹配。
 
 ## 验证
 
@@ -211,9 +215,20 @@ $env:JAVA_HOME = 'D:\Java\jdk-25.0.2'
 - 游戏内端到端：`node tests/integration.mjs`。**此脚本新建并替换当前 Photon 项目，测试前保存自己的项目。**
 - 当前版本已通过 **21 个 JUnit 测试**；原端到端脚本验证 **50 次成功工具调用**，新增 `node tests/native-integration.mjs` 验证 **25 次原生能力调用**，包括代码执行、反射、断言错误回传、FX 回滚/撤销、关键帧增删/时间插入/定位、长预览定位和 FXPack 导出/列举/删除。
 - stdio bridge 已验证 initialize、tools/list 和正常关闭（退出码 0）。0.2 工具目录为 37 个。
-- 第一版空间扭曲 A/B：WarpStrength 0 / 0.055，有 12,599 个像素的最大通道变化大于 8/255，51 帧 GPU 截图保留。参考修订版：WarpStrength 0 / 0.06，有 16,477 个像素显著变化，81 帧 GPU 截图；额外通过 `tests/vergil-visual.py` 方向、同步开门、比例与运动检查。两版 GIF 均非预渲染概念图。
+- 原 26.2 的空间扭曲 A/B 与动画视觉统计保留在案例章节；本次未重新执行 `tests/vergil-visual.py`，不将这些统计计入 1.21.1 迁移验证。
 - 联调用的是 `run-integration/` 独立实例和复制的存档；没有在原游戏存档上进行特效测试。
 - 测试覆盖创建、变换、修改、层级、复制/删除、选择/检查器、暂停定位、undo/redo、检查点、batch rollback、时间线、保存/读取/导出、导入纹理、资源复制和真实 GPU PNG 截图。
+
+本次 1.21.1 回归在独立测试实例的端口 **8766** 上执行：
+
+```powershell
+.\tests\launch-test.ps1 -WorldDir '已有兼容存档目录'
+node tests/integration.mjs http://127.0.0.1:8766/mcp
+node tests/native-integration.mjs http://127.0.0.1:8766/mcp
+node tests/bridge-smoke.mjs 8766
+```
+
+启动脚本把存档复制到 `run-integration/saves/Photon MCP Integration Test`，已有测试副本不会被覆盖。不要传入 26.2 等高于 1.21.1 的存档。测试日志在 `build/qa/`；编辑器截图在 `run-integration/mcp-smoke/editor.png`。正式安装仍默认监听 **8765**；若同时启动 26.2 与 1.21.1，请为其中一个实例设置不同端口。
 
 ## 边界
 

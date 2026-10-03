@@ -6,17 +6,17 @@
       "request": "launch",
       "name": "Client",
       "presentation": {
-        "group": "Mod Development - photon-mcp",
+        "group": "Mod Development - photon-mcp-1.21",
         "order": 0
       },
-      "projectName": "photon-mcp",
+      "projectName": "photon-mcp-1.21",
       "mainClass": "net.neoforged.devlaunch.Main",
       "args": [
-        "@D:\\code\\photon mcp\\PhotonMCP\\build\\moddev\\clientRunProgramArgs.txt"
+        "@D:\\code\\photon mcp\\PhotonMCP-1.21\\build\\moddev\\clientRunProgramArgs.txt"
       ],
       "vmArgs": [
-        "@D:\\code\\photon mcp\\PhotonMCP\\build\\moddev\\clientRunVmArgs.txt",
-        "-Dfml.modFolders\u003dphoton_mcp%%D:\\code\\photon mcp\\PhotonMCP\\bin\\main"
+        "@D:\\code\\photon mcp\\PhotonMCP-1.21\\build\\moddev\\clientRunVmArgs.txt",
+        "-Dfml.modFolders\u003dphoton_mcp%%D:\\code\\photon mcp\\PhotonMCP-1.21\\bin\\main"
       ],
       "cwd": "${workspaceFolder}\\run",
       "env": {},
