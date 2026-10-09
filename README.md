@@ -1,4 +1,4 @@
-# Photon MCP 0.2.0 — NeoForge 1.21.1
+# Photon MCP 0.2.1 — NeoForge 1.21.1
 
 独立的客户端附加模组，让外部 MCP Agent 在游戏内 Photon Editor 中实时创建和修改特效。没有修改 Photon / LDLib2 原始源码，也不需要替换原模组。
 
@@ -7,15 +7,17 @@
 ## 支持的环境
 
 - Minecraft **1.21.1** / NeoForge **21.1.252** / Java **21**。
-- Photon **2.2.7**，使用 `photon-neoforge-1.21.1-2.2.7-all.jar`。
-- LDLib2 **2.2.41**，使用 `ldlib2-neoforge-1.21.1-2.2.41-all.jar`。
+- Photon **2.2.8**，使用 `photon-neoforge-1.21.1-2.2.8-all.jar`。
+- LDLib2 **2.2.42**，使用 `ldlib2-neoforge-1.21.1-2.2.42-all.jar`；兼容已回归的 2.2.41。
 - 这版依据工作区源码和游戏中实际安装的 JAR 实现；元数据锁定了 Photon / LDLib2 的兼容区间，升级后需要重新验证 API / Mixin。
 
 本目录从 `PhotonMCP-26.2` 独立复制并迁移，原版本保持不变。目录名 `PhotonMCP-1.21` 对应的实际游戏版本是 **1.21.1**，不包含对 1.21.0 的兼容承诺。迁移内容和验证记录见 `MIGRATION.md`。
 
 ## 安装和游戏内使用
 
-编译好的文件：`build/libs/photon-mcp-neoforge-1.21.1-0.2.0.jar`。升级时移走旧版 Photon MCP JAR，不能同时安装两个版本。
+编译好的文件：`build/libs/photon-mcp-neoforge-1.21.1-0.2.1.jar`。升级时移走旧版 Photon MCP JAR，不能同时安装两个版本。`installMod` 会先备份已有 1.21.1 MCP JAR 到 `build/install-backups/` 再替换。
+
+0.2.1 的 Photon 2.2.8 适配内容和独立实例回归记录见 `UPGRADE-2.2.8.md`；`MIGRATION.md` 保留首次迁移到 1.21.1 / Photon 2.2.7 的历史记录。
 
 安装位置：`D:\game\.minecraft\versions\1.21.1-NeoForge_21.1.252\mods`。保留原来的 Photon 和 LDLib2 JAR。
 
@@ -96,9 +98,9 @@ stdio bridge 不是第二个编辑器服务器，只把 MCP 消息和 PNG image 
 | 资源 | `photon_list_resources`, `photon_import_texture`, `photon_read_resource`, `photon_write_resource` |
 | 批量 / 历史 / 时间线 | `photon_batch`, `photon_checkpoint`, `photon_undo_redo`, `photon_update_timeline` |
 
-支持粒子、Beam、Trail、AraTrail、Force Field 和空分组，以及 Photon 序列化系统暴露的粒子配置、材质、曲线、梯度、形状和轨道。对象的默认 JSON、原始 SNBT、递归 NBT 类型 schema 均可查询。
+支持粒子、Beam、Trail、AraTrail、Force Field、空分组，以及 2.2.8 新增的 `light` 和 `fog_volume`。`kila_material` 可通过组件查询和原生代码入口使用；粒子光照、自定义空间等配置由 Photon 序列化系统直接暴露。对象的默认 JSON、原始 SNBT、递归 NBT 类型 schema 均可查询。
 
-资源工具也能读取和复制 Photon / KilaGraph 的 Shader Graph、Render Graph、Fullscreen Graph 等 NBT 资源；图内部操作使用 Photon 原生数据，不是 Blender 的 Python API。没有任意 Java/Python 代码执行接口，也没有第三方模型生成 / 资产网站下载集成。
+资源工具也能读取和复制 Photon / KilaGraph 的 Shader Graph、Render Graph、Fullscreen Graph 等 NBT 资源；图内部操作使用 Photon 原生数据。通用代码入口执行 Groovy/JVM；没有 Python 执行接口或第三方模型生成 / 资产网站下载集成。
 
 这个设计借鉴 Blender MCP 的「场景信息 → 对象操作 → 属性检查 → 截图反馈」闭环，但采用嵌入式 MCP 服务，不需要额外运行 Python 服务。
 
@@ -197,7 +199,7 @@ $env:JAVA_HOME = 'C:\Program Files\Eclipse Adoptium\jdk-21.0.11.10-hotspot'
 .\gradlew.bat build
 ```
 
-默认从 `gradle.properties` 中的游戏目录获取 Photon / LDLib2 JAR，也可传 `-PgameDir=...`。构建不会把依赖模组打包进本模组。
+默认从 `gradle.properties` 中的游戏目录获取 Photon / LDLib2 JAR，也可传 `-PgameDir=...`。依赖文件名由 `photon_version` / `ldlib2_version` 决定，默认版本为 2.2.8 / 2.2.42。仍使用 LDLib2 2.2.41 时传 `'-Pldlib2_version=2.2.41'`，并确保对应 JAR 位于目标目录。构建不会把依赖模组打包进本模组。
 
 ### 本机构建与安装脚本
 
@@ -210,6 +212,8 @@ $env:JAVA_HOME = 'C:\Program Files\Eclipse Adoptium\jdk-21.0.11.10-hotspot'
 只构建用 `.\build-local.ps1`，离线构建、测试并安装用 `.\build-local.ps1 -Offline -Test -Install`。可以用 `-JavaHome` 和 `-GameDir` 指定其他本机路径。1.21.1 不再使用原 26.2 的直接游戏 classpath 构建文件，避免混淆游戏 JAR 与开发映射不匹配。
 
 ## 验证
+
+0.2.1 的当前组合为 Photon 2.2.8 / LDLib2 2.2.42。2026-10-09 在独立实例中重新验证 21 个 JUnit 测试、50 次基础调用、25 次原生调用和 42 次新版功能调用；37 个工具的 stdio 发现正常。完整命令与日志位置见 `UPGRADE-2.2.8.md`。以下迁移与案例记录保留原有范围。
 
 - JUnit：配置仅 host/port、HTTP 协议与会话、工具 schema、工具错误、JSON/SNBT 数据合并和 PNG content 格式。
 - 游戏内端到端：`node tests/integration.mjs`。**此脚本新建并替换当前 Photon 项目，测试前保存自己的项目。**

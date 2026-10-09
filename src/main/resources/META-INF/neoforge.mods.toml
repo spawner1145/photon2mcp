@@ -4,7 +4,7 @@ license="All Rights Reserved"
 
 [[mods]]
 modId="photon_mcp"
-version="0.2.0"
+version="0.2.1"
 displayName="Photon MCP"
 authors="Photon MCP contributors"
 description='''Live MCP tools for the in-game Photon effect editor.'''
@@ -29,13 +29,13 @@ side="CLIENT"
 [[dependencies.photon_mcp]]
 modId="photon"
 type="required"
-versionRange="[2.2.7,2.2.8)"
+versionRange="[2.2.8,2.2.9)"
 ordering="AFTER"
 side="CLIENT"
 
 [[dependencies.photon_mcp]]
 modId="ldlib2"
 type="required"
-versionRange="[2.2.41,2.2.42)"
+versionRange="[2.2.41,2.2.43)"
 ordering="AFTER"
 side="CLIENT"

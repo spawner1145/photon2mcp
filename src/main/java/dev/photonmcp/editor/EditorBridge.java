@@ -922,9 +922,17 @@ public final class EditorBridge implements ToolBackend {
             case "resources" -> editor.resourceView;
             default -> throw new IllegalArgumentException("Unknown focus panel");
         } : editor;
+        // Native command actions dispatch through ModularUI's real focus chain.
+        // A synthetic KeymapContext alone cannot route copy/paste/duplicate to the requested panel.
+        focused.focus();
         var context = new com.lowdragmc.lowdraglib2.editor.keymap.KeymapContext() {
             public com.lowdragmc.lowdraglib2.editor.keymap.KeyChord chord() { return action.defaultPrimary(); }
-            public boolean isFocusWithin(Class<?> type) { return type.isInstance(focused); }
+            public boolean isFocusWithin(Class<?> type) {
+                for (var element = focused; element != null; element = element.getParent()) {
+                    if (type.isInstance(element)) return true;
+                }
+                return false;
+            }
             public boolean isTextInputFocused() { return false; }
             public boolean hasProject() { return editor.getCurrentProject() != null; }
         };

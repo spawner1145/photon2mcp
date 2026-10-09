@@ -3,7 +3,7 @@ plugins {
     id 'net.neoforged.moddev' version '2.0.141'
 }
 
-version = '0.2.0'
+version = '0.2.1'
 group = 'dev.photonmcp'
 base { archivesName = 'photon-mcp-neoforge-1.21.1' }
 java { toolchain.languageVersion = JavaLanguageVersion.of(21) }
@@ -11,8 +11,8 @@ java { toolchain.languageVersion = JavaLanguageVersion.of(21) }
 repositories { mavenCentral() }
 
 def installedMods = file("${gameDir}/mods")
-def photonJar = file("${installedMods}/photon-neoforge-1.21.1-2.2.7-all.jar")
-def ldlibJar = file("${installedMods}/ldlib2-neoforge-1.21.1-2.2.41-all.jar")
+def photonJar = file("${installedMods}/photon-neoforge-1.21.1-${photon_version}-all.jar")
+def ldlibJar = file("${installedMods}/ldlib2-neoforge-1.21.1-${ldlib2_version}-all.jar")
 def extractCompileLibraries = tasks.register('extractCompileLibraries', Sync) {
     from(zipTree(ldlibJar)) { include 'META-INF/jarjar/*.jar' }
     from(zipTree(photonJar)) { include 'META-INF/jarjar/*.jar' }
@@ -55,7 +55,22 @@ tasks.register('installMod') {
     dependsOn jar
     inputs.file tasks.jar.archiveFile
     outputs.file tasks.jar.archiveFileName.map { name -> new File(installedMods, name) }
+    outputs.upToDateWhen { false }
     doLast {
+        def previousMods = fileTree(installedMods) {
+            include 'photon-mcp-neoforge-1.21.1-*.jar'
+        }.files
+        if (!previousMods.empty) {
+            def backupDir = layout.buildDirectory.dir("install-backups/${new Date().format('yyyyMMdd-HHmmss-SSS')}").get().asFile
+            copy {
+                from previousMods
+                into backupDir
+            }
+            previousMods.each { oldJar ->
+                if (!oldJar.delete()) throw new GradleException("Cannot replace installed MCP mod: ${oldJar}")
+            }
+            logger.lifecycle("Previous MCP mods backed up to ${backupDir}")
+        }
         copy {
             from tasks.jar.archiveFile
             into installedMods

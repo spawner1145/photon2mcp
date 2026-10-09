@@ -3,7 +3,6 @@ build/
 examples/
 run/
 logs/
-tests/
 run-integration/
 .idea/
 *.iml
