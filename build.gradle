@@ -3,7 +3,7 @@ plugins {
     id 'net.neoforged.moddev' version '2.0.141'
 }
 
-version = '0.2.1'
+version = '0.2.2'
 group = 'dev.photonmcp'
 base { archivesName = 'photon-mcp-neoforge-1.21.1' }
 java { toolchain.languageVersion = JavaLanguageVersion.of(21) }
@@ -11,8 +11,16 @@ java { toolchain.languageVersion = JavaLanguageVersion.of(21) }
 repositories { mavenCentral() }
 
 def installedMods = file("${gameDir}/mods")
-def photonJar = file("${installedMods}/photon-neoforge-1.21.1-${photon_version}-all.jar")
-def ldlibJar = file("${installedMods}/ldlib2-neoforge-1.21.1-${ldlib2_version}-all.jar")
+def installedJar = { String artifact, String artifactVersion ->
+    def suffix = "${artifact}-neoforge-1.21.1-${artifactVersion}-all.jar"
+    def matches = installedMods.listFiles()?.findAll { it.isFile() && it.name.endsWith(suffix) } ?: []
+    if (matches.size() != 1) {
+        throw new GradleException("Expected exactly one installed ${suffix}, found ${matches.size()} in ${installedMods}")
+    }
+    matches.first()
+}
+def photonJar = installedJar('photon', photon_version)
+def ldlibJar = installedJar('ldlib2', ldlib2_version)
 def extractCompileLibraries = tasks.register('extractCompileLibraries', Sync) {
     from(zipTree(ldlibJar)) { include 'META-INF/jarjar/*.jar' }
     from(zipTree(photonJar)) { include 'META-INF/jarjar/*.jar' }
@@ -48,6 +56,9 @@ jar { from(configurations.embeddedGroovy) { into 'META-INF/jarjar' } }
 tasks.withType(JavaCompile).configureEach { options.encoding = 'UTF-8' }
 test {
     useJUnitPlatform()
+    systemProperty 'photonMcp.photonJar', photonJar.absolutePath
+    systemProperty 'photonMcp.ldlibJar', ldlibJar.absolutePath
+    classpath += files(photonJar, ldlibJar)
     classpath += files(fileTree(layout.buildDirectory.dir('compile-libraries')) { include '**/*.jar' })
 }
 
@@ -57,6 +68,14 @@ tasks.register('installMod') {
     outputs.file tasks.jar.archiveFileName.map { name -> new File(installedMods, name) }
     outputs.upToDateWhen { false }
     doLast {
+        def gamePath = file(gameDir).canonicalPath.replace('\\', '/').toLowerCase(Locale.ROOT)
+        def runningGame = ProcessHandle.allProcesses().filter { process ->
+            def info = process.info()
+            def command = info.command().orElse('').toLowerCase(Locale.ROOT)
+            def arguments = info.commandLine().orElse('').replace('\\', '/').toLowerCase(Locale.ROOT)
+            (command.endsWith('java.exe') || command.endsWith('javaw.exe')) && arguments.contains(gamePath)
+        }.findAny()
+        if (runningGame.present) throw new GradleException('Close this Minecraft instance before replacing the MCP mod')
         def previousMods = fileTree(installedMods) {
             include 'photon-mcp-neoforge-1.21.1-*.jar'
         }.files

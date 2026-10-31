@@ -21,9 +21,12 @@ public final class PhotonMcp {
     private McpConfig config = new McpConfig("127.0.0.1", 8765);
     private String startupError = "";
 
-    public PhotonMcp() {
+    public PhotonMcp(net.neoforged.bus.api.IEventBus modBus) {
         instance = this;
         NeoForge.EVENT_BUS.addListener(this::onFrame);
+        NeoForge.EVENT_BUS.addListener(this::onLevelStage);
+        modBus.addListener((net.neoforged.neoforge.client.event.RegisterShadersEvent event) ->
+                dev.photonmcp.compat.terrain.TerrainDepthCapture.release());
         try {
             config = McpConfig.load(configPath);
             server.start(config);
@@ -66,5 +69,12 @@ public final class PhotonMcp {
 
     private void onFrame(RenderFrameEvent.Post event) {
         ScreenshotService.onFrame();
+        dev.photonmcp.compat.terrain.TerrainDepthCapture.endFrame();
+    }
+
+    private void onLevelStage(net.neoforged.neoforge.client.event.RenderLevelStageEvent event) {
+        if (event.getStage() == net.neoforged.neoforge.client.event.RenderLevelStageEvent.Stage.AFTER_CUTOUT_BLOCKS) {
+            dev.photonmcp.compat.terrain.TerrainDepthCapture.captureWorld();
+        }
     }
 }

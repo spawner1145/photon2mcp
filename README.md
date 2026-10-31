@@ -1,23 +1,23 @@
-# Photon MCP 0.2.1 — NeoForge 1.21.1
+# Photon MCP 0.2.2 — NeoForge 1.21.1
 
 独立的客户端附加模组，让外部 MCP Agent 在游戏内 Photon Editor 中实时创建和修改特效。没有修改 Photon / LDLib2 原始源码，也不需要替换原模组。
 
-0.2 增加了通用 Groovy/JVM 代码执行、真实 API 反射查询、安装类目录、原生编辑器动作和 FXPack 管理。**37 个专用工具不是能力白名单**：其余 Photon / LDLib / KilaGraph 能力可以通过代码入口访问。完整覆盖说明和未逐项验证的边界见 `COVERAGE.md`，不要把“API 可调用”理解为“每一个 GUI 操作都已经独立测试过”。
+0.2 增加了通用 Groovy/JVM 代码执行、真实 API 反射查询、安装类目录、原生编辑器动作和 FXPack 管理。**38 个专用工具不是能力白名单**：其余 Photon / LDLib / KilaGraph 能力可以通过代码入口访问。完整覆盖说明和未逐项验证的边界见 `COVERAGE.md`，不要把“API 可调用”理解为“每一个 GUI 操作都已经独立测试过”。
 
 ## 支持的环境
 
 - Minecraft **1.21.1** / NeoForge **21.1.252** / Java **21**。
-- Photon **2.2.8**，使用 `photon-neoforge-1.21.1-2.2.8-all.jar`。
-- LDLib2 **2.2.42**，使用 `ldlib2-neoforge-1.21.1-2.2.42-all.jar`；兼容已回归的 2.2.41。
+- Photon **2.2.9**（官方版），使用 `photon-neoforge-1.21.1-2.2.9-all.jar`，允许文件名前有显示名称前缀。
+- LDLib2 **2.2.44**，使用 `ldlib2-neoforge-1.21.1-2.2.44-all.jar`。
 - 这版依据工作区源码和游戏中实际安装的 JAR 实现；元数据锁定了 Photon / LDLib2 的兼容区间，升级后需要重新验证 API / Mixin。
 
 本目录从 `PhotonMCP-26.2` 独立复制并迁移，原版本保持不变。目录名 `PhotonMCP-1.21` 对应的实际游戏版本是 **1.21.1**，不包含对 1.21.0 的兼容承诺。迁移内容和验证记录见 `MIGRATION.md`。
 
 ## 安装和游戏内使用
 
-编译好的文件：`build/libs/photon-mcp-neoforge-1.21.1-0.2.1.jar`。升级时移走旧版 Photon MCP JAR，不能同时安装两个版本。`installMod` 会先备份已有 1.21.1 MCP JAR 到 `build/install-backups/` 再替换。
+编译好的文件：`build/libs/photon-mcp-neoforge-1.21.1-0.2.2.jar`。升级时移走旧版 Photon MCP JAR，不能同时安装两个版本。`installMod` 会先检查游戏已关闭，再备份已有 1.21.1 MCP JAR 到 `build/install-backups/` 并替换。
 
-0.2.1 的 Photon 2.2.8 适配内容和独立实例回归记录见 `UPGRADE-2.2.8.md`；`MIGRATION.md` 保留首次迁移到 1.21.1 / Photon 2.2.7 的历史记录。
+0.2.2 的官方 2.2.9 适配、碰撞资源迁移和地形深度兼容说明见 `UPGRADE-2.2.9.md`；`MIGRATION.md` 保留首次迁移到 1.21.1 / Photon 2.2.7 的历史记录。游戏内用 `photon_get_compatibility` 查询实际运行的库与节点能力。
 
 安装位置：`D:\game\.minecraft\versions\1.21.1-NeoForge_21.1.252\mods`。保留原来的 Photon 和 LDLib2 JAR。
 
@@ -84,7 +84,7 @@ stdio bridge 不是第二个编辑器服务器，只把 MCP 消息和 PNG image 
 
 ## 工具能力
 
-**37 个工具**，运行时可以通过 `tools/list` 获取准确输入 schema。
+**38 个工具**，运行时可以通过 `tools/list` 获取准确输入 schema。
 
 | 类别 | 工具 |
 | --- | --- |

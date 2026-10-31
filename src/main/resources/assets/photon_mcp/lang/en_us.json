@@ -4,5 +4,6 @@
   "photon_mcp.menu.stop": "Stop MCP server",
   "photon_mcp.menu.start": "Start MCP server",
   "photon_mcp.menu.copy_url": "Copy MCP URL",
-  "photon_mcp.menu.apply": "Save and restart"
+  "photon_mcp.menu.apply": "Save and restart",
+  "photon_mcp_terrain_depth": "Terrain-only depth (migration compatibility)"
 }

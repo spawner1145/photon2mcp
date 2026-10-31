@@ -9,6 +9,7 @@ public final class ToolCatalog {
 
     public static JsonArray tools() {
         var tools = new JsonArray();
+        add(tools, "photon_get_compatibility", "Read installed Photon/LDLib/KilaGraph versions, native collision schema and the terrain-only depth compatibility node. Old collision_emitter effects require migration; terrain depth never falls back to entity depth.", "{}", "", true);
         add(tools, "photon_get_server_status", "MCP listener status and recently active client sessions.", "{}", "", true);
         add(tools, "photon_get_editor_state", "Find the currently open Photon editor, project, playback and selection.", "{}", "", true);
         add(tools, "photon_open_editor", "Open the Photon editor screen, using the same EditorWindow entry point as /photon_editor.", "{}", "", false);

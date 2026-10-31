@@ -111,6 +111,7 @@ public final class EditorBridge implements ToolBackend {
                 arguments.has("package_prefix") ? string(arguments, "package_prefix") : "com.lowdragmc.photon.",
                 arguments.has("filter") ? string(arguments, "filter") : "");
         if (name.equals("photon_get_server_status")) return PhotonMcp.get().server.status();
+        if (name.equals("photon_get_compatibility")) return compatibility();
         if (name.equals("photon_get_editor_state")) return state(activeEditor());
         if (name.equals("photon_list_object_types")) return types();
         if (name.equals("photon_describe_component")) return component(arguments);
@@ -221,6 +222,22 @@ public final class EditorBridge implements ToolBackend {
         result.add("selected", selected);
         var inspected = editor.inspectorView.inspector.getInspectedConfigurable();
         result.addProperty("inspectedObject", inspected instanceof IFXObject object ? object.id().toString() : "");
+        return result;
+    }
+
+    private static JsonObject compatibility() {
+        var result = new JsonObject();
+        for (var id : new String[]{"photon_mcp", "photon", "ldlib2", "kilagraph"}) {
+            result.addProperty(id, net.neoforged.fml.ModList.get().getModContainerById(id)
+                    .map(container -> container.getModInfo().getVersion().toString()).orElse("not_installed"));
+        }
+        result.addProperty("collisionSchema", "photon_2_2_9_native");
+        result.addProperty("collisionObjectType", "particle_emitter");
+        result.addProperty("livingIncludesPlayers", true);
+        result.addProperty("terrainDepthNode", dev.photonmcp.compat.terrain.TerrainDepthNode.class.getName());
+        result.addProperty("terrainDepthCopies", dev.photonmcp.compat.terrain.TerrainDepthCapture.copies());
+        result.addProperty("terrainDepthFallbackToEntities", false);
+        result.addProperty("effectMigrationRequired", true);
         return result;
     }
 
@@ -514,6 +531,7 @@ public final class EditorBridge implements ToolBackend {
     }
 
     private static void validateTracks(CompoundTag timeline) {
+        TimelineNbt.normalize(timeline);
         for (var tag : timeline.getList("tracks", net.minecraft.nbt.Tag.TAG_COMPOUND)) {
             if (!(tag instanceof CompoundTag track) || PhotonRegistries.TIMELINE_TRACKS.get(track.getString("type")) == null) {
                 throw new IllegalArgumentException("Unknown timeline track type");

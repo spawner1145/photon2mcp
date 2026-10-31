@@ -26,11 +26,13 @@ public final class CodeRunner {
         var output = new StringWriter();
         binding.setVariable("out", new PrintWriter(output, true));
         var imports = new ImportCustomizer();
-        imports.addStarImports("com.lowdragmc.photon.client.fx", "com.lowdragmc.photon.client.gameobject",
-                "com.lowdragmc.photon.client.fx.timeline", "com.lowdragmc.photon.client.fx.timeline.property",
-                "com.lowdragmc.photon.gui.editor", "net.minecraft.nbt", "net.minecraft.resources", "org.joml");
-        imports.addImports("com.lowdragmc.photon.PhotonRegistries", "com.lowdragmc.lowdraglib2.Platform",
-                "com.lowdragmc.lowdraglib2.utils.PersistedParser", "com.lowdragmc.lowdraglib2.LDLib2");
+        if (context.containsKey("client")) {
+            imports.addStarImports("com.lowdragmc.photon.client.fx", "com.lowdragmc.photon.client.gameobject",
+                    "com.lowdragmc.photon.client.fx.timeline", "com.lowdragmc.photon.client.fx.timeline.property",
+                    "com.lowdragmc.photon.gui.editor", "net.minecraft.nbt", "net.minecraft.resources", "org.joml");
+            imports.addImports("com.lowdragmc.photon.PhotonRegistries", "com.lowdragmc.lowdraglib2.Platform",
+                    "com.lowdragmc.lowdraglib2.utils.PersistedParser", "com.lowdragmc.lowdraglib2.LDLib2");
+        }
         var configuration = new CompilerConfiguration();
         configuration.addCompilationCustomizers(imports);
         var shell = new GroovyShell(CodeRunner.class.getClassLoader(), binding, configuration);

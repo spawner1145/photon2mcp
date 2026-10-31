@@ -137,7 +137,7 @@ public final class McpServer implements AutoCloseable {
                     result = new JsonObject();
                     result.addProperty("protocolVersion", PROTOCOLS.contains(requested) ? requested : PROTOCOLS.getFirst());
                     result.add("capabilities", JsonParser.parseString("{\"tools\":{\"listChanged\":false}}"));
-                    result.add("serverInfo", JsonParser.parseString("{\"name\":\"photon-mcp\",\"version\":\"0.2.1\"}"));
+                    result.add("serverInfo", JsonParser.parseString("{\"name\":\"photon-mcp\",\"version\":\"0.2.2\"}"));
                     result.addProperty("instructions", "Open the in-game Photon editor. Use photon_get_editor_state, photon_list_object_types and photon_describe_object_type before editing. Inspect defaults instead of guessing keys. JSON patches deep-merge, arrays replace. Edits support editor undo; screenshot returns PNG image content. No arbitrary code execution tool.");
                     var clientName = params.has("clientInfo") ? params.getAsJsonObject("clientInfo").get("name").getAsString() : "agent";
                     var nextSession = UUID.randomUUID().toString();

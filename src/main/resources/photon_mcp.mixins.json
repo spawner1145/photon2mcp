@@ -3,6 +3,6 @@
   "minVersion": "0.8",
   "package": "dev.photonmcp.mixin",
   "compatibilityLevel": "JAVA_21",
-  "client": ["FXEditorMixin", "EditorAccessor", "HistoryViewMixin"],
+  "client": ["FXEditorMixin", "EditorAccessor", "HistoryViewMixin", "TerrainShaderBindingsMixin", "TerrainEditorCaptureMixin"],
   "injectors": {"defaultRequire": 1}
 }
