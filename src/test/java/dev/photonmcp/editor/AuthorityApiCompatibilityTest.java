@@ -52,4 +52,19 @@ class AuthorityApiCompatibilityTest {
         assertTrue(iris.containsKey("photon$isRenderingWorld"));
         assertTrue(iris.containsKey("photon$defaultFB"));
     }
+
+    @Test
+    void nativeSectionControlsAndClockAccessAreAvailable() throws IOException {
+        var player = methods("com/lowdragmc/photon/client/fx/timeline/TimelinePlayer");
+        assertEquals("()D", player.get("localTime"));
+        var controls = methods("com/lowdragmc/photon/client/fx/timeline/SectionControl");
+        assertEquals("(Ljava/lang/String;)Z", controls.get("jumpTo"));
+        assertEquals("(Ljava/lang/String;)Z", controls.get("queue"));
+        assertEquals("()Z", controls.get("advance"));
+        assertEquals("()Z", controls.get("release"));
+        var host = methods("com/lowdragmc/lowdraglib2/gui/ui/window/ModularUIWindow");
+        assertTrue(host.containsKey("getGuiScale"));
+        assertTrue(host.containsKey("surface"));
+        assertTrue(host.containsKey("openWindows"));
+    }
 }

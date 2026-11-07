@@ -33,7 +33,7 @@ const initialized = await rpc('initialize', {
   protocolVersion: '2025-11-25', capabilities: {},
   clientInfo: { name: 'photon-2.2.8-regression', version: '1' },
 });
-assert.equal(initialized.serverInfo.version, '0.2.2');
+assert.equal(initialized.serverInfo.version, '0.2.3');
 await tool('photon_open_editor');
 await tool('photon_new_project');
 const types = await tool('photon_list_object_types');

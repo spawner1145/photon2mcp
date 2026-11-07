@@ -38,4 +38,12 @@ class TimelineNbtTest {
         TimelineNbt.normalize(data);
         assertEquals(before, data);
     }
+
+    @Test
+    void sectionRepeatsReleaseAndClipModesSurviveNormalization() {
+        var data = NbtJson.merge(new CompoundTag(), JsonParser.parseString("{\"sections\":[{\"name\":\"hold\",\"start\":0,\"repeat\":0,\"then\":\"linear\"}],\"release\":{\"section\":\"end\",\"timing\":\"section_end\"},\"tracks\":[{\"type\":\"control\",\"data\":{\"clips\":[{\"start\":0,\"duration\":20,\"exit\":\"drain\",\"seam\":\"restart\"}]}}]}").getAsJsonObject());
+        var before = data.copy();
+        TimelineNbt.normalize(data);
+        assertEquals(before, data);
+    }
 }

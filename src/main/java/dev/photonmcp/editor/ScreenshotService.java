@@ -50,25 +50,38 @@ public final class ScreenshotService {
         var minecraft = Minecraft.getInstance();
         var region = capture.arguments.has("region") ? capture.arguments.get("region").getAsString() : "scene";
         Crop crop = null;
+        var target = minecraft.getMainRenderTarget();
+        double scale = minecraft.getWindow().getGuiScale();
+        boolean offscreen = false;
         if (!region.equals("screen")) {
             if (EditorBridge.activeEditor() != capture.editor) throw new IllegalStateException("Editor changed before capture");
             var element = region.equals("scene") ? capture.editor.sceneView.sceneEditor.scene : capture.editor;
             crop = bounds(element);
+            for (var host : com.lowdragmc.lowdraglib2.gui.ui.window.ModularUIWindow.openWindows()) {
+                if (host.isOpen() && host.getModularUI().getElementsByType(element.getClass()).contains(element)) {
+                    if (host.surface() == null) throw new IllegalStateException("Editor window has not rendered yet");
+                    target = host.surface().target();
+                    scale = host.getGuiScale();
+                    offscreen = true;
+                    break;
+                }
+            }
         }
         var requestedCrop = crop;
-        var scale = minecraft.getWindow().getGuiScale();
+        var captureScale = scale;
+        var capturedOffscreen = offscreen;
         var directory = minecraft.gameDirectory.toPath();
-        var image = Screenshot.takeScreenshot(minecraft.getMainRenderTarget());
+        var image = Screenshot.takeScreenshot(target);
         Thread.startVirtualThread(() -> {
             try (image) {
                 if (capture.result.isDone()) return;
                 var buffered = new BufferedImage(image.getWidth(), image.getHeight(), BufferedImage.TYPE_INT_ARGB);
                 buffered.setRGB(0, 0, image.getWidth(), image.getHeight(), image.makePixelArray(), 0, image.getWidth());
                 if (requestedCrop != null) {
-                    var left = Math.max(0, (int) Math.floor(requestedCrop.left * scale));
-                    var top = Math.max(0, (int) Math.floor(requestedCrop.top * scale));
-                    var right = Math.min(buffered.getWidth(), (int) Math.ceil(requestedCrop.right * scale));
-                    var bottom = Math.min(buffered.getHeight(), (int) Math.ceil(requestedCrop.bottom * scale));
+                    var left = Math.max(0, (int) Math.floor(requestedCrop.left * captureScale));
+                    var top = Math.max(0, (int) Math.floor(requestedCrop.top * captureScale));
+                    var right = Math.min(buffered.getWidth(), (int) Math.ceil(requestedCrop.right * captureScale));
+                    var bottom = Math.min(buffered.getHeight(), (int) Math.ceil(requestedCrop.bottom * captureScale));
                     if (right <= left || bottom <= top) throw new IllegalStateException("Capture region is not visible");
                     buffered = buffered.getSubimage(left, top, right - left, bottom - top);
                 }
@@ -97,7 +110,12 @@ public final class ScreenshotService {
                     Files.createDirectories(file.getParent());
                     Files.write(file, bytes);
                 }
-                capture.result.complete(ToolResults.image(Base64.getEncoder().encodeToString(bytes), buffered.getWidth(), buffered.getHeight()));
+                var result = ToolResults.image(Base64.getEncoder().encodeToString(bytes), buffered.getWidth(), buffered.getHeight());
+                var metadata = result.getAsJsonObject("structuredContent");
+                metadata.addProperty("captureSource", capturedOffscreen ? "editor_window" : "game_window");
+                metadata.addProperty("guiScale", captureScale);
+                result.getAsJsonArray("content").get(0).getAsJsonObject().addProperty("text", metadata.toString());
+                capture.result.complete(result);
             } catch (Exception exception) {
                 capture.result.complete(ToolResults.failure(exception.toString()));
             }

@@ -3,7 +3,7 @@ plugins {
     id 'net.neoforged.moddev' version '2.0.141'
 }
 
-version = '0.2.2'
+version = '0.2.3'
 group = 'dev.photonmcp'
 base { archivesName = 'photon-mcp-neoforge-1.21.1' }
 java { toolchain.languageVersion = JavaLanguageVersion.of(21) }

@@ -1,23 +1,23 @@
-# Photon MCP 0.2.2 — NeoForge 1.21.1
+# Photon MCP 0.2.3 — NeoForge 1.21.1
 
 独立的客户端附加模组，让外部 MCP Agent 在游戏内 Photon Editor 中实时创建和修改特效。没有修改 Photon / LDLib2 原始源码，也不需要替换原模组。
 
-0.2 增加了通用 Groovy/JVM 代码执行、真实 API 反射查询、安装类目录、原生编辑器动作和 FXPack 管理。**38 个专用工具不是能力白名单**：其余 Photon / LDLib / KilaGraph 能力可以通过代码入口访问。完整覆盖说明和未逐项验证的边界见 `COVERAGE.md`，不要把“API 可调用”理解为“每一个 GUI 操作都已经独立测试过”。
+0.2 增加了通用 Groovy/JVM 代码执行、真实 API 反射查询、安装类目录、原生编辑器动作和 FXPack 管理。**39 个专用工具不是能力白名单**：其余 Photon / LDLib / KilaGraph 能力可以通过代码入口访问。完整覆盖说明和未逐项验证的边界见 `COVERAGE.md`，不要把“API 可调用”理解为“每一个 GUI 操作都已经独立测试过”。
 
 ## 支持的环境
 
 - Minecraft **1.21.1** / NeoForge **21.1.252** / Java **21**。
-- Photon **2.2.9**（官方版），使用 `photon-neoforge-1.21.1-2.2.9-all.jar`，允许文件名前有显示名称前缀。
-- LDLib2 **2.2.44**，使用 `ldlib2-neoforge-1.21.1-2.2.44-all.jar`。
+- Photon **2.2.11**（官方版），使用 `photon-neoforge-1.21.1-2.2.11-all.jar`，允许文件名前有显示名称前缀。
+- LDLib2 **2.2.46**，使用 `ldlib2-neoforge-1.21.1-2.2.46-all.jar`。
 - 这版依据工作区源码和游戏中实际安装的 JAR 实现；元数据锁定了 Photon / LDLib2 的兼容区间，升级后需要重新验证 API / Mixin。
 
 本目录从 `PhotonMCP-26.2` 独立复制并迁移，原版本保持不变。目录名 `PhotonMCP-1.21` 对应的实际游戏版本是 **1.21.1**，不包含对 1.21.0 的兼容承诺。迁移内容和验证记录见 `MIGRATION.md`。
 
 ## 安装和游戏内使用
 
-编译好的文件：`build/libs/photon-mcp-neoforge-1.21.1-0.2.2.jar`。升级时移走旧版 Photon MCP JAR，不能同时安装两个版本。`installMod` 会先检查游戏已关闭，再备份已有 1.21.1 MCP JAR 到 `build/install-backups/` 并替换。
+编译好的文件：`build/libs/photon-mcp-neoforge-1.21.1-0.2.3.jar`。升级时移走旧版 Photon MCP JAR，不能同时安装两个版本。`installMod` 会先检查游戏已关闭，再备份已有 1.21.1 MCP JAR 到 `build/install-backups/` 并替换。
 
-0.2.2 的官方 2.2.9 适配、碰撞资源迁移和地形深度兼容说明见 `UPGRADE-2.2.9.md`；`MIGRATION.md` 保留首次迁移到 1.21.1 / Photon 2.2.7 的历史记录。游戏内用 `photon_get_compatibility` 查询实际运行的库与节点能力。
+0.2.3 的时间轴分段、Drain／Seam、生命周期循环及独立窗口支持见 `UPGRADE-2.2.11.md`；0.2.2 的碰撞资源迁移和地形深度兼容说明保留在 `UPGRADE-2.2.9.md`。游戏内用 `photon_get_compatibility` 查询实际运行的库与节点能力，用 `photon_timeline_sections` 控制分段。
 
 安装位置：`D:\game\.minecraft\versions\1.21.1-NeoForge_21.1.252\mods`。保留原来的 Photon 和 LDLib2 JAR。
 
@@ -84,7 +84,7 @@ stdio bridge 不是第二个编辑器服务器，只把 MCP 消息和 PNG image 
 
 ## 工具能力
 
-**38 个工具**，运行时可以通过 `tools/list` 获取准确输入 schema。
+**39 个工具**，运行时可以通过 `tools/list` 获取准确输入 schema。
 
 | 类别 | 工具 |
 | --- | --- |
@@ -240,5 +240,5 @@ node tests/bridge-smoke.mjs 8766
 - 新建/打开项目直接替换，不弹出保存确认；由 Agent 先保存必要工作。
 - undo / 检查点保存 FX 对象和时间线，不会撤销文件保存、纹理导入或资源文件覆写。
 - `.fx` 与 `.fxproj` 的外部资源引用不自动嵌入。跨机器分发可用 `photon_fxpack` 或原 Photon File 菜单的 `.fxpack` 功能。
-- 外部原生浮动窗口不在游戏主 framebuffer 内；当前截图仅保证主游戏编辑器窗口。
+- 可发现独立 OS 窗口中的编辑器，`scene`／`editor` 截图使用所属窗口的离屏 framebuffer 和 GUI 缩放；`screen` 仍指游戏主窗口。
 - 游戏关闭/暂停渲染时不能采集新帧；网络调用超时返回工具错误。

@@ -17,7 +17,7 @@ async function tool(name, args = {}) {
   return result.structuredContent;
 }
 
-assert.equal((await rpc('tools/list', {})).tools.length, 38);
+assert.equal((await rpc('tools/list', {})).tools.length, 39);
 await tool('photon_open_editor');
 await tool('photon_new_project');
 const created = await tool('photon_create_object', { type: 'particle_emitter', name: 'Native Probe' });

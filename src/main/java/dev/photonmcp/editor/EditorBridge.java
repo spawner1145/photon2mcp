@@ -72,7 +72,24 @@ public final class EditorBridge implements ToolBackend {
     }
 
     public static FXEditor activeEditor() {
-        var ui = ModularUI.of(Minecraft.getInstance().screen);
+        for (var window : com.lowdragmc.lowdraglib2.gui.ui.window.ModularUIWindow.openWindows()) {
+            if (window.isOpen() && window.window().isFocused()) {
+                var focused = visibleEditor(window.getModularUI());
+                if (focused != null) return focused;
+            }
+        }
+        var embedded = visibleEditor(ModularUI.of(Minecraft.getInstance().screen));
+        if (embedded != null) return embedded;
+        for (var window : com.lowdragmc.lowdraglib2.gui.ui.window.ModularUIWindow.openWindows()) {
+            if (window.isOpen()) {
+                var editor = visibleEditor(window.getModularUI());
+                if (editor != null) return editor;
+            }
+        }
+        return null;
+    }
+
+    private static FXEditor visibleEditor(ModularUI ui) {
         if (ui != null) {
             var editors = ui.getElementsByType(FXEditor.class);
             for (var editor : editors) {
@@ -123,9 +140,7 @@ public final class EditorBridge implements ToolBackend {
         if (name.equals("photon_open_editor")) {
             if (activeEditor() == null) {
                 if (Minecraft.getInstance().level == null) throw new IllegalStateException("Join a single-player world before opening Photon editor.");
-                var ui = new ModularUI(UI.of(EditorWindow.open(FXEditor.WINDOW_ID, FXEditor::new).setId("fx_editor")))
-                        .shouldCloseOnEsc(false).shouldCloseOnKeyInventory(false);
-                Minecraft.getInstance().setScreen(new ModularUIScreen(ui, Component.literal("Photon")));
+                EditorWindow.show(FXEditor.WINDOW_ID, FXEditor::new);
             }
             return state(requireEditor());
         }
@@ -182,6 +197,7 @@ public final class EditorBridge implements ToolBackend {
             case "photon_get_object" -> detail(find(editor.runtime, string(arguments, "object")));
             case "photon_get_project" -> tagResult(snapshot(project));
             case "photon_describe_timeline" -> describeTimeline(editor);
+            case "photon_timeline_sections" -> sectionControl(editor, arguments);
             case "photon_save_project" -> save(editor, project, arguments);
             case "photon_export_effect" -> export(project, arguments);
             case "photon_select_object" -> select(editor, string(arguments, "object"));
@@ -211,7 +227,7 @@ public final class EditorBridge implements ToolBackend {
         if (editor.runtime != null) {
             try {
                 result.addProperty("timelineEvaluationTick", (Number) ApiIntrospection.read(editor.runtime.timelinePlayer, "lastEvalTime"));
-                result.addProperty("timelineNextTick", (Number) ApiIntrospection.read(editor.runtime.timelinePlayer, "localTime"));
+                result.addProperty("timelineNextTick", editor.runtime.timelinePlayer.localTime());
             } catch (ReflectiveOperationException exception) {
                 throw new IllegalStateException("Cannot inspect Photon timeline clock", exception);
             }
@@ -237,7 +253,12 @@ public final class EditorBridge implements ToolBackend {
         result.addProperty("terrainDepthNode", dev.photonmcp.compat.terrain.TerrainDepthNode.class.getName());
         result.addProperty("terrainDepthCopies", dev.photonmcp.compat.terrain.TerrainDepthCapture.copies());
         result.addProperty("terrainDepthFallbackToEntities", false);
-        result.addProperty("effectMigrationRequired", true);
+        result.addProperty("effectMigrationRequired", false);
+        result.addProperty("legacyCollisionMigrationRequired", "Only pre-2.2.9 collision_emitter data needs conversion");
+        result.addProperty("timelineSections", true);
+        result.addProperty("drainingClipExits", true);
+        result.addProperty("particleLifetimeModes", true);
+        result.addProperty("editorSectionControlTool", "photon_timeline_sections");
         return result;
     }
 
@@ -699,6 +720,40 @@ public final class EditorBridge implements ToolBackend {
             types.add(type.name(), entry);
         }
         result.add("trackDefaults", types);
+        var features = new JsonObject();
+        features.add("sectionExample", com.google.gson.JsonParser.parseString("{\"name\":\"sustain\",\"start\":0,\"repeat\":0,\"then\":\"linear\"}"));
+        features.add("releaseExample", com.google.gson.JsonParser.parseString("{\"section\":\"release\",\"timing\":\"now\"}"));
+        features.add("exitModes", gson.toJsonTree(com.lowdragmc.photon.client.fx.timeline.Clip.ExitMode.values()));
+        features.add("seamModes", gson.toJsonTree(com.lowdragmc.photon.client.fx.timeline.Clip.SeamMode.values()));
+        features.add("particleLifetimeModes", gson.toJsonTree(com.lowdragmc.photon.client.gameobject.particle.ParticleLifetime.Mode.values()));
+        features.addProperty("sectionControlTool", "photon_timeline_sections");
+        features.addProperty("contentDurationTicks", editor.runtime.fxData.timeline().getDuration());
+        result.add("features", features);
+        return result;
+    }
+
+    private static JsonObject sectionControl(FXEditor editor, JsonObject arguments) {
+        var control = editor.runtime.sections();
+        String action = arguments.has("action") ? string(arguments, "action") : "inspect";
+        Boolean accepted = null;
+        switch (action) {
+            case "inspect" -> { }
+            case "jump", "queue" -> {
+                String section = string(arguments, "section");
+                accepted = action.equals("jump") ? control.jumpTo(section) : control.queue(section);
+            }
+            case "advance" -> accepted = control.advance();
+            case "release" -> accepted = control.release();
+            default -> throw new IllegalArgumentException("Unknown section action: " + action);
+        }
+        var result = state(editor);
+        result.addProperty("hasSections", control.hasSections());
+        result.add("names", gson.toJsonTree(control.names()));
+        result.addProperty("current", control.current());
+        result.addProperty("pass", control.pass());
+        result.addProperty("hasRelease", control.hasRelease());
+        result.addProperty("released", control.isReleased());
+        if (accepted != null) result.addProperty("accepted", accepted);
         return result;
     }
 
